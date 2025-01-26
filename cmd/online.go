@@ -71,7 +71,7 @@ Example:
 		defer resp.Body.Close()
 
 		var raw []json.RawMessage
-		err = json.Unmarshal([]byte(body), &raw)
+		err = json.Unmarshal(body, &raw)
 		if err != nil {
 			panic(err)
 		}
@@ -106,19 +106,32 @@ func init() {
 func formatNetworkStatus(status NetworkStatus, clients []OnlineClient) string {
 	var sb strings.Builder
 
-	// Network status header
-	sb.WriteString(fmt.Sprintf("%s @ %s\n", status.LocalhostName, status.LocalhostIP))
-	sb.WriteString(fmt.Sprintf("MAC: %s | Blacklisted: %d | Filter: %s\n",
-		status.LocalhostMac,
-		status.BlackNum,
-		status.MacFilterType))
+	// Router identity
+	sb.WriteString(fmt.Sprintf("%s @ %s (%s)\n", status.LocalhostName, status.LocalhostIP, status.LocalhostMac))
 
-	// Connected clients header
-	sb.WriteString("\nConnected Devices:\n")
+	// Client table
+	if len(clients) > 0 {
+		sb.WriteString("\n")
+		// Table headers
+		sb.WriteString(fmt.Sprintf("%-20s %-15s %7s %7s %s\n",
+			"DEVICE NAME",
+			"IP ADDRESS",
+			"↑KB/s",
+			"↓KB/s",
+			"TYPE"))
+		sb.WriteString(fmt.Sprintf("%-20s %-15s %7s %7s %s\n",
+			strings.Repeat("─", 20),
+			strings.Repeat("─", 15),
+			strings.Repeat("─", 7),
+			strings.Repeat("─", 7),
+			strings.Repeat("─", 4)))
 
-	// Client list
-	for _, client := range clients {
-		sb.WriteString(formatClientLine(client))
+		// Client entries
+		for _, client := range clients {
+			sb.WriteString(formatClientLine(client))
+		}
+	} else {
+		sb.WriteString("\nNo connected devices\n")
 	}
 
 	return sb.String()
@@ -130,7 +143,7 @@ func formatClientLine(client OnlineClient) string {
 		guestMarker = "[Guest]"
 	}
 
-	return fmt.Sprintf("  %-20s %-15s ↑%4s ↓%4s KB/s %s\n",
+	return fmt.Sprintf("%-20s %-15s %7s %7s %s\n",
 		truncateName(client.DevName, 18),
 		client.IP,
 		client.UploadSpeed,

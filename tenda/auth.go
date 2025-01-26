@@ -148,16 +148,21 @@ func RequestPasswordHash() (string, error) {
 	return passwordHash, nil
 }
 
+var passwordHash string
+
 func RefreshSessionPassword(client *http.Client) error {
-	passwordHash, err := RequestPasswordHash() // maybe bad? cli code in library code, potential fix, function passed in to request password on a whim.
+	if passwordHash == "" {
+		_passwordHash, err := RequestPasswordHash() // maybe bad? cli code in library code, potential fix, function passed in to request password on a whim.
+		if err != nil {
+			return err
+		}
+		passwordHash = _passwordHash
+	}
+
+	err := Login(client, passwordHash)
 	if err != nil {
 		return err
 	}
-	err = Login(client, passwordHash)
-	if err != nil {
-		return err
-	}
-	// fmt.Printf("Session password is: %s\n", GetSessionPassword())
 
 	return nil
 }
