@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 
 	"github.com/bluescorpian/tendactl/tenda"
@@ -26,6 +27,15 @@ type VirtualEntry struct {
 	Protocol string `json:"protocol"`
 }
 
+func (v *VirtualServerCfg) VirtualListString() string {
+	var parts []string
+	for _, entry := range v.VirtualList {
+		// TODO: make sure ~ does not exist in string
+		parts = append(parts, fmt.Sprintf("%s,%s,%s,%s", entry.Ip, entry.InPort, entry.OutPort, entry.Protocol))
+	}
+	return strings.Join(parts, "~")
+}
+
 // virtualServerCmd represents the virtualServer command
 var virtualServerCmd = &cobra.Command{
 	Use:   "vs",
@@ -39,32 +49,15 @@ Displays current rules including:
 Examples:
   tendactl vs
   → Lists all active port forwarding rules
-  tendactl vs add -i 192.168.0.100 -in 80 -out 8080 -p 0
+  tendactl vs add 192.168.0.100 80 8080 0
   → Creates new forwarding rule (TCP&UDP)
-  tendactl vs delete -i 192.168.0.100 -p 80
+  tendactl vs delete 192.168.0.100 80 8080 0
   → Removes existing forwarding rule`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client := tenda.CreateHTTPClient()
-
-		request, err := tenda.TendaRequest("GET", "/goform/GetVirtualServerCfg", nil)
+		virtualServerCfg, err := GetVirtualServerCfg(client)
 		if err != nil {
-			panic(err)
-		}
-
-		resp, err := tenda.TendaDoAuthRequest(client, request)
-		if err != nil {
-			panic(err)
-		}
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body:", err)
-			return
-		}
-		defer resp.Body.Close()
-		var virtualServerCfg VirtualServerCfg
-		err = json.Unmarshal(body, &virtualServerCfg)
-		if err != nil {
-			fmt.Println("Error parsing JSON:", err)
+			fmt.Printf("Error getting virtual server configuration: %v\n", err)
 			return
 		}
 
@@ -86,7 +79,7 @@ func init() {
 	// virtualServerCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func formatVirtualServer(cfg VirtualServerCfg) string {
+func formatVirtualServer(cfg *VirtualServerCfg) string {
 	var sb strings.Builder
 
 	if len(cfg.VirtualList) == 0 {
@@ -127,4 +120,42 @@ func formatVirtualServer(cfg VirtualServerCfg) string {
 	}
 
 	return sb.String()
+}
+
+func GetVirtualServerCfg(client *http.Client) (*VirtualServerCfg, error) {
+	request, err := tenda.TendaRequest("GET", "/goform/GetVirtualServerCfg", nil)
+	if err != nil {
+		return &VirtualServerCfg{}, fmt.Errorf("error creating request: %v", err)
+	}
+
+	resp, err := tenda.TendaDoAuthRequest(client, request)
+	if err != nil {
+		return &VirtualServerCfg{}, fmt.Errorf("error sending request: %v", err)
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return &VirtualServerCfg{}, fmt.Errorf("error reading response: %v", err)
+	}
+	defer resp.Body.Close()
+	var virtualServerCfg VirtualServerCfg
+	err = json.Unmarshal(body, &virtualServerCfg)
+	if err != nil {
+		return &VirtualServerCfg{}, fmt.Errorf("error unmarshalling response: %v", err)
+	}
+	return &virtualServerCfg, nil
+}
+
+func SetVirtualServerCfg(client *http.Client, cfg *VirtualServerCfg) error {
+	body := "list=" + cfg.VirtualListString()
+	request, err := tenda.TendaRequest("POST", "/goform/SetVirtualServerCfg", strings.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("error creating request: %v", err)
+	}
+	resp, err := tenda.TendaDoAuthRequest(client, request)
+	if err != nil {
+		return fmt.Errorf("error sending request: %v", err)
+	}
+	// TODO: handle error
+	defer resp.Body.Close()
+	return nil
 }
