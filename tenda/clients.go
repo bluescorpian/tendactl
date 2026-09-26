@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/url"
+	"strings"
 )
 
 // OnlineList is "Manage Device" (getOnlineList): the admin's own device, the
@@ -100,4 +102,82 @@ func clientLine(s string) string {
 		return Band5.String()
 	}
 	return s
+}
+
+// BlockedClient is one entry in the "Manage Device" quick blacklist
+// (getBlackRuleList), a different list from macfilter's block/allow table.
+type BlockedClient struct {
+	MAC  string `json:"mac"`
+	Name string `json:"name"`
+}
+
+type blockedClientWire struct {
+	DeviceId string `json:"deviceId"`
+	DevName  string `json:"devName"`
+}
+
+var (
+	// ErrClientIsLocalhost is BlockClient's refusal to blacklist the
+	// browsing admin's own device; there is no doc'd errCode for this,
+	// since the UI's "Add" button is simply hidden for that row.
+	ErrClientIsLocalhost = errors.New("refusing to block the local host device; use the api command to override")
+	// ErrClientBlocklistFull is setBlackRule errCode 1 (max 30 entries).
+	ErrClientBlocklistFull = errors.New("the quick blacklist is full (max 30 entries)")
+	// ErrClientNameTooLong is the UI's 20-character device name limit.
+	ErrClientNameTooLong = errors.New("device name longer than 20 characters")
+)
+
+// RenameClient sets a device's name (SetOnlineDevName), identical across the
+// four pages that call it.
+func (c *Client) RenameClient(ctx context.Context, mac, name string) error {
+	m, err := ParseMAC(mac)
+	if err != nil {
+		return err
+	}
+	if len([]rune(name)) > 20 {
+		return ErrClientNameTooLong
+	}
+	return c.set(ctx, "SetOnlineDevName", url.Values{"mac": {strings.ToLower(m)}, "devName": {name}})
+}
+
+// BlockClient adds mac to the quick blacklist (setBlackRule), immediately
+// cutting off its network access. It refuses the browsing session's own
+// device outright; api can still be used to force it.
+func (c *Client) BlockClient(ctx context.Context, mac string) error {
+	m, err := ParseMAC(mac)
+	if err != nil {
+		return err
+	}
+	l, err := c.OnlineList(ctx)
+	if err != nil {
+		return err
+	}
+	if EqualMAC(m, l.Host.MAC) {
+		return ErrClientIsLocalhost
+	}
+	err = c.set(ctx, "setBlackRule", url.Values{"mac": {strings.ToLower(m)}})
+	return mapCode(err, 1, ErrClientBlocklistFull)
+}
+
+// UnblockClient removes mac from the quick blacklist (delBlackRule),
+// restoring its network access.
+func (c *Client) UnblockClient(ctx context.Context, mac string) error {
+	m, err := ParseMAC(mac)
+	if err != nil {
+		return err
+	}
+	return c.set(ctx, "delBlackRule", url.Values{"mac": {strings.ToLower(m)}})
+}
+
+// BlockedClients reads the quick blacklist (getBlackRuleList).
+func (c *Client) BlockedClients(ctx context.Context) ([]BlockedClient, error) {
+	var raw []blockedClientWire
+	if err := c.get(ctx, "getBlackRuleList", nil, &raw); err != nil {
+		return nil, err
+	}
+	out := make([]BlockedClient, 0, len(raw))
+	for _, w := range raw {
+		out = append(out, BlockedClient{MAC: w.DeviceId, Name: w.DevName})
+	}
+	return out, nil
 }

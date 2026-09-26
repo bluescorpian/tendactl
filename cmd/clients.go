@@ -37,6 +37,70 @@ download speed in KB/s. Guest network clients are marked [Guest].`,
 		Args:  cobra.NoArgs,
 		RunE:  list,
 	})
+	cmd.AddCommand(&cobra.Command{
+		Use:   "rename <mac> <name>",
+		Short: "Rename a device (SetOnlineDevName)",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := a.client()
+			if err != nil {
+				return err
+			}
+			if err := c.RenameClient(cmd.Context(), args[0], args[1]); err != nil {
+				return err
+			}
+			return a.done(cmd, "Renamed %s to %q", args[0], args[1])
+		},
+	})
+	cmd.AddCommand(&cobra.Command{
+		Use:   "block <mac>",
+		Short: "Add a device to the quick blacklist (setBlackRule)",
+		Long: `Add a device to the "Manage Device" quick blacklist, cutting off its network
+access immediately. This is a different list from macfilter. Blocking the
+local host device is refused; use the api command to override.`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := a.client()
+			if err != nil {
+				return err
+			}
+			if err := c.BlockClient(cmd.Context(), args[0]); err != nil {
+				return err
+			}
+			return a.done(cmd, "Blocked %s", args[0])
+		},
+	})
+	cmd.AddCommand(&cobra.Command{
+		Use:   "unblock <mac>",
+		Short: "Remove a device from the quick blacklist (delBlackRule)",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := a.client()
+			if err != nil {
+				return err
+			}
+			if err := c.UnblockClient(cmd.Context(), args[0]); err != nil {
+				return err
+			}
+			return a.done(cmd, "Unblocked %s", args[0])
+		},
+	})
+	cmd.AddCommand(&cobra.Command{
+		Use:   "blocked",
+		Short: "List devices on the quick blacklist (getBlackRuleList)",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			c, err := a.client()
+			if err != nil {
+				return err
+			}
+			bl, err := c.BlockedClients(cmd.Context())
+			if err != nil {
+				return err
+			}
+			return a.render(cmd, bl, func(w io.Writer) error { return clientsBlockedText(w, bl) })
+		},
+	})
 	return cmd
 }
 
@@ -61,6 +125,18 @@ func clientsText(w io.Writer, l tenda.OnlineList) error {
 		{title: "↑KB/s", right: true}, {title: "↓KB/s", right: true},
 		{title: "TYPE"},
 	}, rows)
+}
+
+func clientsBlockedText(w io.Writer, bl []tenda.BlockedClient) error {
+	if len(bl) == 0 {
+		_, err := fmt.Fprintln(w, "No blocked devices")
+		return err
+	}
+	rows := make([][]string, len(bl))
+	for i, b := range bl {
+		rows[i] = []string{b.MAC, b.Name}
+	}
+	return table(w, []col{{title: "MAC ADDRESS"}, {title: "DEVICE NAME"}}, rows)
 }
 
 // clientsTruncate shortens s to n runes, ending in "...".
