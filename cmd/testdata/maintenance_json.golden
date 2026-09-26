@@ -1,0 +1,6 @@
+{
+  "enabled": true,
+  "rebootTime": "03:00",
+  "delayIfBusy": false,
+  "timeSynced": false
+}
