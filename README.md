@@ -7,6 +7,8 @@
 -   View connected devices with upload/download speeds and identify guest network clients.
 -   Manage port forwarding (NAT) rules to open or close specific ports.
 -   Check router status including WAN IP, firmware version, and Wi-Fi configuration.
+-   Manage WiFi, guest network, DHCP, firewall, VPN, parental control and most
+    other router settings; run `tendactl --help` for the full command tree.
 -   Call any router endpoint directly with `tendactl api`.
 
 ## Installation
@@ -79,6 +81,17 @@ JSON replies are pretty-printed; other replies are written raw, so
 `tendactl api get cgi-bin/DownloadCfg/RouterCfm.cfg > backup.cfg` works. `set`
 fails on a non-zero `errCode`. Endpoints on the doc's "Never call casually"
 list still need `--yes`.
+
+### Everything else
+
+Beyond the walkthroughs above, `tendactl` also manages WiFi (`wifi`, plus its
+`channel`, `power`, `schedule`, `wps`, `antijam` and `beamforming`
+subcommands, and `guest`), network settings (`dhcp`, `dmz`, `upnp`,
+`bandwidth`, `parental`, `lan`, `firewall`, `macfilter`, `route`, `ddns`), the
+router itself (`led`, `sleep`, and `system`'s `status`, `reboot`, `log`,
+`maintenance`, `remote`, `time` and `backup`), and the PPTP/L2TP VPN (`vpn`'s
+`server`, `users`, `online` and `client`). Run `tendactl --help` for the full
+command tree, or `tendactl <command> --help` for any command's flags.
 
 ## License
 
