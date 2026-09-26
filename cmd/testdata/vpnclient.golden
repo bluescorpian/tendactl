@@ -1,0 +1,11 @@
+Enabled:      off
+Type:         pptp
+Domain:
+User:
+Password:
+MPPE:         off
+MPPE bits:    128
+PPTP status:  disconnected
+PPTP IP:      0.0.0.0
+L2TP status:  disconnected
+L2TP IP:

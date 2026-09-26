@@ -1,0 +1,13 @@
+{
+  "enabled": false,
+  "type": "pptp",
+  "domain": "",
+  "mppe": false,
+  "mppeBits": 128,
+  "user": "",
+  "password": "",
+  "pptpStatus": "disconnected",
+  "pptpIp": "0.0.0.0",
+  "l2tpStatus": "disconnected",
+  "l2tpIp": ""
+}
