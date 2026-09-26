@@ -92,7 +92,7 @@ func newWiFiBasicSetCmd(a *app) *cobra.Command {
 			return a.done(cmd, "WiFi settings updated")
 		},
 	}
-	cmd.Flags().Var(&band, "band", "band to change: 2.4, 5 or all (default all)")
+	cmd.Flags().Var(&band, "band", "band to change: 2.4, 5 or all")
 	cmd.Flags().StringVar(&ssid, "ssid", "", "WiFi network name")
 	cmd.Flags().StringVar(&password, "password", "", "WiFi password")
 	cmd.Flags().StringVar(&security, "security", "", "encryption: none, wpapsk, wpa2psk or wpawpa2psk")
@@ -109,7 +109,7 @@ func newWiFiBasicEnableCmd(a *app) *cobra.Command {
 			return wifiBasicApply(a, cmd, band, func(r *tenda.WiFiRadio) { r.Enabled = true }, "WiFi enabled")
 		},
 	}
-	cmd.Flags().Var(&band, "band", "band to enable: 2.4, 5 or all (default all)")
+	cmd.Flags().Var(&band, "band", "band to enable: 2.4, 5 or all")
 	return cmd
 }
 
@@ -123,7 +123,7 @@ func newWiFiBasicDisableCmd(a *app) *cobra.Command {
 			return wifiBasicApply(a, cmd, band, func(r *tenda.WiFiRadio) { r.Enabled = false }, "WiFi disabled")
 		},
 	}
-	cmd.Flags().Var(&band, "band", "band to disable: 2.4, 5 or all (default all)")
+	cmd.Flags().Var(&band, "band", "band to disable: 2.4, 5 or all")
 	return cmd
 }
 
@@ -137,7 +137,7 @@ func newWiFiBasicHideCmd(a *app) *cobra.Command {
 			return wifiBasicApply(a, cmd, band, func(r *tenda.WiFiRadio) { r.Hidden = true }, "WiFi SSID hidden")
 		},
 	}
-	cmd.Flags().Var(&band, "band", "band to hide: 2.4, 5 or all (default all)")
+	cmd.Flags().Var(&band, "band", "band to hide: 2.4, 5 or all")
 	return cmd
 }
 
@@ -151,7 +151,7 @@ func newWiFiBasicUnhideCmd(a *app) *cobra.Command {
 			return wifiBasicApply(a, cmd, band, func(r *tenda.WiFiRadio) { r.Hidden = false }, "WiFi SSID unhidden")
 		},
 	}
-	cmd.Flags().Var(&band, "band", "band to unhide: 2.4, 5 or all (default all)")
+	cmd.Flags().Var(&band, "band", "band to unhide: 2.4, 5 or all")
 	return cmd
 }
 

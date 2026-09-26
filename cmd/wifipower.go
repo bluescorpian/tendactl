@@ -61,7 +61,7 @@ func newWiFiPowerCmd(a *app) *cobra.Command {
 			}, "WiFi transmit power set to "+level)
 		},
 	}
-	set.Flags().Var(&band, "band", "band to change: 2.4, 5 or all (default all)")
+	set.Flags().Var(&band, "band", "band to change: 2.4, 5 or all")
 	cmd.AddCommand(set)
 	return cmd
 }

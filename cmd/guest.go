@@ -84,7 +84,7 @@ func newGuestCmd(a *app) *cobra.Command {
 			}, "Guest network settings updated")
 		},
 	}
-	set.Flags().Var(&band, "band", "band the --ssid applies to: 2.4, 5 or all (default all)")
+	set.Flags().Var(&band, "band", "band the --ssid applies to: 2.4, 5 or all")
 	set.Flags().StringVar(&ssid, "ssid", "", "guest WiFi network name")
 	set.Flags().StringVar(&password, "password", "", "guest WiFi password (shared by both bands)")
 	set.Flags().StringVar(&effectiveTime, "effective-time", "", "guest network validity: 4, 8 (hours) or always")

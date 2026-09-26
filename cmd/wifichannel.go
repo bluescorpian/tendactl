@@ -46,21 +46,21 @@ func newWiFiChannelCmd(a *app) *cobra.Command {
 		RunE:  show,
 	})
 
-	var band tenda.Band
+	var band requiredBand
 	var channel, width, mode string
 	set := &cobra.Command{
 		Use:   "set",
 		Short: "Set WiFi channel, bandwidth or mode",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if band == tenda.BandAll {
+			if band.Band == tenda.BandAll {
 				return fmt.Errorf("--band is required: 2.4 or 5")
 			}
 			if !changed(cmd, "channel", "width", "mode") {
 				return errNothingToChange
 			}
 			modes, widths := wifiChannelModes24, wifiChannelWidths24
-			if band == tenda.Band5 {
+			if band.Band == tenda.Band5 {
 				modes, widths = wifiChannelModes5, wifiChannelWidths5
 			}
 			if changed(cmd, "mode") && !slices.Contains(modes, mode) {
@@ -82,7 +82,7 @@ func newWiFiChannelCmd(a *app) *cobra.Command {
 			}
 			return update(a, cmd, c.WiFiChannel, c.SetWiFiChannel, func(v *tenda.WiFiChannel) error {
 				r := &v.Band24
-				if band == tenda.Band5 {
+				if band.Band == tenda.Band5 {
 					r = &v.Band5
 				}
 				if changed(cmd, "channel") {
@@ -118,6 +118,20 @@ func wifiChannelParse(s string) (int, error) {
 		return 0, fmt.Errorf("invalid --channel %q: want a channel number or auto", s)
 	}
 	return n, nil
+}
+
+// requiredBand wraps tenda.Band for a --band flag that, unlike most, has no
+// valid default: BandAll is rejected at runtime, so pflag's automatic
+// "(default all)" annotation would contradict the flag's own "(required)"
+// text. Reporting an empty String() while unset makes pflag treat the
+// default as the type's zero value and skip the annotation.
+type requiredBand struct{ tenda.Band }
+
+func (b requiredBand) String() string {
+	if b.Band == tenda.BandAll {
+		return ""
+	}
+	return b.Band.String()
 }
 
 func wifiChannelText(w io.Writer, ch tenda.WiFiChannel) error {
