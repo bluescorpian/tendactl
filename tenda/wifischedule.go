@@ -84,19 +84,28 @@ func encodeScheduleDays(days []string) string {
 // fires only when enabling with values that differ from what's already
 // running.
 func (c *Client) SetWiFiSchedule(ctx context.Context, prev, next WiFiSchedule) error {
-	return c.setWith(ctx, "openSchedWifi", wifiScheduleForm(next), wifiScheduleForm(prev))
+	return c.setWith(ctx, "openSchedWifi", wifiScheduleForm(prev, next), wifiScheduleForm(prev, prev))
 }
 
-func wifiScheduleForm(s WiFiSchedule) url.Values {
+// wifiScheduleForm builds the openSchedWifi form. The UI's getSubmitData()
+// only takes schedStartTime/schedEndTime/timeType/day from the live form
+// when schedWifiEnable == 1; otherwise it resends the last-read (prev)
+// values unchanged, regardless of what next asks to change
+// (js/wifi_time.js moduleModel.getSubmitData).
+func wifiScheduleForm(prev, next WiFiSchedule) url.Values {
+	start, end, everyDay, days := next.Start, next.End, next.EveryDay, next.Days
+	if !next.Enabled {
+		start, end, everyDay, days = prev.Start, prev.End, prev.EveryDay, prev.Days
+	}
 	timeType := "1"
-	if s.EveryDay {
+	if everyDay {
 		timeType = "0"
 	}
 	return url.Values{
-		"schedWifiEnable": {flag(s.Enabled)},
-		"schedStartTime":  {s.Start},
-		"schedEndTime":    {s.End},
+		"schedWifiEnable": {flag(next.Enabled)},
+		"schedStartTime":  {start},
+		"schedEndTime":    {end},
 		"timeType":        {timeType},
-		"day":             {encodeScheduleDays(s.Days)},
+		"day":             {encodeScheduleDays(days)},
 	}
 }

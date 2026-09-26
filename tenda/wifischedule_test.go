@@ -50,6 +50,28 @@ func TestWiFiScheduleSet(t *testing.T) {
 	}
 }
 
+func TestWiFiScheduleSetWhileDisabledResendsPrevWindow(t *testing.T) {
+	r := tendatest.New(t)
+	c := newTestClient(t, r)
+	prev := WiFiSchedule{Enabled: false, Start: "00:00", End: "07:00", EveryDay: false, Days: []string{"mon"}}
+	next := prev
+	next.Start, next.End = "22:00", "06:00"
+	next.Days = []string{"tue"}
+	if err := c.SetWiFiSchedule(context.Background(), prev, next); err != nil {
+		t.Fatal(err)
+	}
+	// schedWifiEnable=0 must be paired with prev's start/end/day, exactly as
+	// js/wifi_time.js's getSubmitData() sends when the toggle isn't "1" --
+	// never with the new, unapplied values from next.
+	want := url.Values{
+		"schedWifiEnable": {"0"}, "schedStartTime": {"00:00"}, "schedEndTime": {"07:00"},
+		"timeType": {"1"}, "day": {"1,0,0,0,0,0,0"},
+	}.Encode()
+	if got := r.LastCall(t, "openSchedWifi").RawBody; got != want {
+		t.Fatalf("body = %q, want %q", got, want)
+	}
+}
+
 func TestWiFiScheduleSetEnableChangedNeedsConfirm(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r) // no WithConfirm: every hazard is refused
