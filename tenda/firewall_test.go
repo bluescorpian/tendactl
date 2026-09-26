@@ -20,7 +20,7 @@ func TestFirewall(t *testing.T) {
 	}
 }
 
-func TestSetFirewall(t *testing.T) {
+func TestFirewallSet(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r)
 	if err := c.SetFirewall(context.Background(), Firewall{ICMPFloodDefense: true, TCPFloodDefense: false, UDPFloodDefense: true, IgnoreWANPing: true}); err != nil {
