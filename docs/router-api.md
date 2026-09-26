@@ -70,8 +70,19 @@ formats below:
 SetLEDCfg, SetFirewallCfg, SetDMZCfg, SetRemoteWebCfg, SetUpnpCfg,
 SetVirtualServerCfg, SetIpMacBind, SetSysTimeCfg, SetSysAutoRebbotCfg,
 SetPptpServerCfg, SetPptpClientCfg (disabled), PowerSaveSet, openSchedWifi,
-WifiWpsSet, WifiPowerSet, `cloudv2 manage setbasic`. `setBlackRule` and then
-`delBlackRule` with a dummy MAC added the row and removed it again.
+WifiWpsSet, WifiPowerSet, WifiBeamformingSet, WifiAntijamSet,
+SetDDNSCfg (disabled), `cloudv2 manage setbasic`.
+
+These were verified by adding a dummy row, reading it back and removing it:
+SetVirtualServerCfg, SetStaticRouteCfg, SetIpMacBind, setMacFilterCfg
+(blacklist), `setBlackRule`/`delBlackRule`, SetNetControlList (a cap set on
+one device, then removed), `saveParentControlInfo` + `delParentalRule`.
+
+Saving WifiPowerSet, WifiBeamformingSet or WifiAntijamSet restarts the
+2.4 GHz radio and the guest radio, even when the values are unchanged.
+The router log shows "2.4G Main WiFi DOWN" and then UP about 4 seconds
+later, once per save, so WiFi clients drop briefly. WifiWpsSet was saved in
+the same run, so it may do the same.
 
 Every getter was captured live. The other setters are documented from the
 UI code only. Some were left untested because they restart a radio, drop the
