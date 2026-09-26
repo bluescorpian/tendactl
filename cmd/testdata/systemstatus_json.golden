@@ -1,0 +1,45 @@
+{
+  "time": "2000-01-08 07:07:10",
+  "uptimeSeconds": 630448,
+  "firmware": "V15.03.06.50_multi",
+  "hardware": "V1.0",
+  "wan": [
+    {
+      "connectStatus": 3,
+      "connectType": "2",
+      "uptimeSeconds": "131877",
+      "ip": "203.0.113.10",
+      "mask": "255.255.255.255",
+      "gateway": "203.0.113.11",
+      "dns1": "1.1.1.1",
+      "dns2": "8.8.8.8",
+      "mac": "02:00:00:00:00:01",
+      "upKBps": "0.72",
+      "downKBps": "0.82"
+    }
+  ],
+  "lanIp": "192.168.0.1",
+  "lanMask": "255.255.255.0",
+  "lanMac": "02:00:00:00:00:0F",
+  "wifi24": {
+    "hidden": true,
+    "ssid": "WiFi-16",
+    "security": "wpa2psk",
+    "channel": "2",
+    "band": "20",
+    "mac": "02:00:00:00:00:10"
+  },
+  "wifi5": {
+    "hidden": false,
+    "ssid": "",
+    "security": "",
+    "channel": "",
+    "band": "",
+    "mac": ""
+  },
+  "wifi5Enabled": false,
+  "autoMaintenanceEnabled": true,
+  "remoteManagementEnabled": false,
+  "dhcpReservationConfigured": true,
+  "timeSynced": false
+}

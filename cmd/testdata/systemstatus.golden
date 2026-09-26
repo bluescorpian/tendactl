@@ -1,0 +1,18 @@
+System time:                  2000-01-08 07:07:10
+Uptime (s):                   630448
+Firmware:                     V15.03.06.50_multi
+Hardware:                     V1.0
+LAN IP:                       192.168.0.1
+LAN mask:                     255.255.255.0
+LAN MAC:                      02:00:00:00:00:0F
+2.4 GHz SSID:                 WiFi-16
+2.4 GHz hidden:               on
+5 GHz:                        off
+WAN1 status:                  Connected
+WAN1 type:                    PPPoE
+WAN1 IP:                      203.0.113.10
+WAN1 speed:                   ↓0.82 ↑0.72 KB/s
+Automatic maintenance:        on
+Remote management:            off
+DHCP reservation configured:  on
+Clock synced:                 off
