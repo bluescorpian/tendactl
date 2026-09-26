@@ -1,0 +1,16 @@
+{
+  "enabled": false,
+  "start": "00:00",
+  "end": "07:00",
+  "everyDay": false,
+  "days": [
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri"
+  ],
+  "powerSaveWindow": "",
+  "workModeOk": true,
+  "timeSynced": false
+}
