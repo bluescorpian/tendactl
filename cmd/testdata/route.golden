@@ -1,0 +1,15 @@
+LAN IP:       192.168.0.1
+LAN mask:     255.255.255.0
+WAN mask:     255.255.255.255
+WAN gateway:  203.0.113.11
+
+No user-added static routes
+
+System routes (read-only):
+NETWORK      MASK            GATEWAY      INTERFACE ACTIVE
+──────────── ─────────────── ──────────── ───────── ──────
+0.0.0.0      0.0.0.0         203.0.113.11 WAN1      yes
+203.0.113.11 255.255.255.255 0.0.0.0      WAN1      yes
+192.168.0.0  255.255.255.0   0.0.0.0      br0       yes
+192.168.10.0 255.255.255.0   0.0.0.0      br1       yes
+224.0.0.0    240.0.0.0       0.0.0.0      br0       yes

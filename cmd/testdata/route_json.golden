@@ -1,0 +1,48 @@
+{
+  "lanIp": "192.168.0.1",
+  "lanMask": "255.255.255.0",
+  "wanMask": "255.255.255.255",
+  "wanGateway": "203.0.113.11",
+  "routes": [
+    {
+      "network": "0.0.0.0",
+      "mask": "0.0.0.0",
+      "gateway": "203.0.113.11",
+      "interface": "WAN1",
+      "system": true,
+      "active": true
+    },
+    {
+      "network": "203.0.113.11",
+      "mask": "255.255.255.255",
+      "gateway": "0.0.0.0",
+      "interface": "WAN1",
+      "system": true,
+      "active": true
+    },
+    {
+      "network": "192.168.0.0",
+      "mask": "255.255.255.0",
+      "gateway": "0.0.0.0",
+      "interface": "br0",
+      "system": true,
+      "active": true
+    },
+    {
+      "network": "192.168.10.0",
+      "mask": "255.255.255.0",
+      "gateway": "0.0.0.0",
+      "interface": "br1",
+      "system": true,
+      "active": true
+    },
+    {
+      "network": "224.0.0.0",
+      "mask": "240.0.0.0",
+      "gateway": "0.0.0.0",
+      "interface": "br0",
+      "system": true,
+      "active": true
+    }
+  ]
+}
