@@ -68,11 +68,7 @@ server.`,
 			if changed(cmd, "mppe-bits") && mppeBits != 40 && mppeBits != 128 {
 				return fmt.Errorf("invalid --mppe-bits %d: want 40 or 128", mppeBits)
 			}
-			c, err := a.client()
-			if err != nil {
-				return err
-			}
-			return update(a, cmd, c.VPNClient, c.SetVPNClient, func(v *tenda.VPNClient) error {
+			return vpnClientApply(a, cmd, func(v *tenda.VPNClient) {
 				if changed(cmd, "type") {
 					v.Type = vpnType
 				}
@@ -91,7 +87,6 @@ server.`,
 				if changed(cmd, "mppe-bits") {
 					v.MPPEBits = mppeBits
 				}
-				return nil
 			}, "VPN client settings updated")
 		},
 	}
@@ -108,11 +103,7 @@ server.`,
 		Short: "Turn the VPN client on",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			c, err := a.client()
-			if err != nil {
-				return err
-			}
-			return update(a, cmd, c.VPNClient, c.SetVPNClient, func(v *tenda.VPNClient) error { v.Enabled = true; return nil }, "VPN client enabled")
+			return vpnClientApply(a, cmd, func(v *tenda.VPNClient) { v.Enabled = true }, "VPN client enabled")
 		},
 	})
 	cmd.AddCommand(&cobra.Command{
@@ -120,14 +111,32 @@ server.`,
 		Short: "Turn the VPN client off",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			c, err := a.client()
-			if err != nil {
-				return err
-			}
-			return update(a, cmd, c.VPNClient, c.SetVPNClient, func(v *tenda.VPNClient) error { v.Enabled = false; return nil }, "VPN client disabled")
+			return vpnClientApply(a, cmd, func(v *tenda.VPNClient) { v.Enabled = false }, "VPN client disabled")
 		},
 	})
 	return cmd
+}
+
+// vpnClientApply is the prev-aware read-modify-write helper: SetVPNClient
+// needs the previous value to reproduce the UI's disabled-state and
+// l2tp-MPPE locks (see tenda.SetVPNClient), so it cannot go through the
+// generic update[T].
+func vpnClientApply(a *app, cmd *cobra.Command, mutate func(*tenda.VPNClient), done string) error {
+	c, err := a.client()
+	if err != nil {
+		return err
+	}
+	ctx := cmd.Context()
+	prev, err := c.VPNClient(ctx)
+	if err != nil {
+		return err
+	}
+	next := prev
+	mutate(&next)
+	if err := c.SetVPNClient(ctx, prev, next); err != nil {
+		return err
+	}
+	return a.done(cmd, "%s", done)
 }
 
 func vpnClientParseOnOff(s string) (bool, error) {

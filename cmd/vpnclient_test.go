@@ -69,6 +69,23 @@ func TestVPNClientSetInvalidMPPEBits(t *testing.T) {
 func TestVPNClientSet(t *testing.T) {
 	t.Parallel()
 	r := tendatest.New(t)
+	// The fixture's VPN client starts disabled; js/pptp_client.js's
+	// getSubmitData() resends every field but clientEn from prev unchanged
+	// whenever clientEn isn't "1", so these flags must not reach the wire.
+	mustRun(t, r, "vpn", "client", "set", "--type", "l2tp", "--domain", "vpn.example.com", "--user", "bob", "--password", "s3cret")
+	got := r.LastCall(t, "SetPptpClientCfg").Form
+	if got.Get("clientEn") != "0" {
+		t.Fatalf("clientEn = %v", got)
+	}
+	if got.Get("clientType") != "pptp" || got.Get("domain") != "" || got.Get("userName") != "" || got.Get("password") != "" {
+		t.Fatalf("form = %v", got)
+	}
+}
+
+func TestVPNClientSetWhileEnabled(t *testing.T) {
+	t.Parallel()
+	r := tendatest.New(t)
+	r.Reply("GetPptpClientCfg", 200, `{"clientEn":"1","clientType":"pptp","domain":"","clientMppe":"0","clientMppeOp":"128","clientWanid":"1","userName":"","password":"","clientIp":"","clientMask":"","pptpStatus":"0","pptpIp":"0.0.0.0","l2tpStatus":"0","l2tpIp":"","wanConnType":"2","wanUser":"REDACTED","wanIp":"203.0.113.10"}`)
 	mustRun(t, r, "vpn", "client", "set", "--type", "l2tp", "--domain", "vpn.example.com", "--user", "bob", "--password", "s3cret")
 	got := r.LastCall(t, "SetPptpClientCfg").Form
 	if got.Get("clientType") != "l2tp" || got.Get("domain") != "vpn.example.com" || got.Get("userName") != "bob" || got.Get("password") != "s3cret" {

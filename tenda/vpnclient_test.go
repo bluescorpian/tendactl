@@ -37,8 +37,9 @@ func TestVPNClientStatus(t *testing.T) {
 func TestVPNClientSet(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r)
-	v := VPNClient{Enabled: true, Type: "pptp", Domain: "vpn.example.com", MPPE: true, MPPEBits: 40, User: "bob", Password: "s3cret"}
-	if err := c.SetVPNClient(context.Background(), v); err != nil {
+	prev := VPNClient{Enabled: true, Type: "pptp", Domain: "old.example.com", MPPE: false, MPPEBits: 128, User: "alice", Password: "old"}
+	next := VPNClient{Enabled: true, Type: "pptp", Domain: "vpn.example.com", MPPE: true, MPPEBits: 40, User: "bob", Password: "s3cret"}
+	if err := c.SetVPNClient(context.Background(), prev, next); err != nil {
 		t.Fatal(err)
 	}
 	want := url.Values{
@@ -50,18 +51,43 @@ func TestVPNClientSet(t *testing.T) {
 	}
 }
 
-func TestVPNClientSetDisabled(t *testing.T) {
+func TestVPNClientSetWhileDisabledResendsPrevFields(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r)
-	v := VPNClient{Enabled: false, Type: "pptp", MPPEBits: 128}
-	if err := c.SetVPNClient(context.Background(), v); err != nil {
+	// js/pptp_client.js's getSubmitData() resends every field but clientEn
+	// from prev unchanged whenever the submitted clientEn isn't "1".
+	prev := VPNClient{Enabled: false, Type: "pptp", Domain: "vpn.example.com", MPPE: false, MPPEBits: 128, User: "bob", Password: "s3cret"}
+	next := prev
+	next.Type, next.Domain, next.User, next.Password = "l2tp", "new.example.com", "carol", "hunter2"
+	next.MPPE, next.MPPEBits = true, 40
+	if err := c.SetVPNClient(context.Background(), prev, next); err != nil {
 		t.Fatal(err)
 	}
 	want := url.Values{
 		"clientEn": {"0"}, "clientType": {"pptp"}, "clientMppe": {"0"}, "clientMppeOp": {"128"},
-		"domain": {""}, "userName": {""}, "password": {""},
+		"domain": {"vpn.example.com"}, "userName": {"bob"}, "password": {"s3cret"},
 	}.Encode()
 	if got := r.LastCall(t, "SetPptpClientCfg").RawBody; got != want {
 		t.Fatalf("body = %q, want %q", got, want)
+	}
+}
+
+func TestVPNClientSetL2TPResendsPrevMPPE(t *testing.T) {
+	r := tendatest.New(t)
+	c := newTestClient(t, r)
+	// getSubmitData()'s ternary: clientMppe/clientMppeOp come from the live
+	// form only for clientType=="pptp"; for "l2tp" they're resent from prev
+	// unchanged even while enabling, since MPPE isn't user-configurable
+	// there.
+	prev := VPNClient{Enabled: true, Type: "pptp", MPPE: false, MPPEBits: 128, Domain: "vpn.example.com", User: "bob", Password: "s3cret"}
+	next := prev
+	next.Type = "l2tp"
+	next.MPPE, next.MPPEBits = true, 40
+	if err := c.SetVPNClient(context.Background(), prev, next); err != nil {
+		t.Fatal(err)
+	}
+	got := r.LastCall(t, "SetPptpClientCfg").Form
+	if got.Get("clientType") != "l2tp" || got.Get("clientMppe") != "0" || got.Get("clientMppeOp") != "128" {
+		t.Fatalf("form = %v", got)
 	}
 }

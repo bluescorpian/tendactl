@@ -78,20 +78,37 @@ func (c *Client) VPNClient(ctx context.Context) (VPNClient, error) {
 	}, nil
 }
 
-// SetVPNClient sends the full UI form (SetPptpClientCfg). The UI sends every
-// field on both enable and disable (its own doc'd disabled-state example
-// includes clientType/clientMppe/clientMppeOp/domain/userName/password, not
-// just clientEn), so this always sends all seven; a caller that only wants
-// to flip Enabled gets that behaviour for free through update[T].
-func (c *Client) SetVPNClient(ctx context.Context, v VPNClient) error {
-	form := url.Values{
-		"clientEn":     {flag(v.Enabled)},
-		"clientType":   {v.Type},
-		"clientMppe":   {flag(v.MPPE)},
-		"clientMppeOp": {strconv.Itoa(v.MPPEBits)},
-		"domain":       {v.Domain},
-		"userName":     {v.User},
-		"password":     {v.Password},
+// SetVPNClient sends the full UI form (SetPptpClientCfg): all seven fields
+// are sent on both enable and disable, matching the UI's own doc'd
+// disabled-state example.
+//
+// prev is the value most recently read. getSubmitData() in
+// js/pptp_client.js only takes clientType/domain/userName/password (and, for
+// clientType=="pptp", clientMppe/clientMppeOp too) from the live form when
+// clientEn=="1"; otherwise every field but clientEn is resent from prev
+// unchanged. Even while enabling, clientMppe/clientMppeOp are resent from
+// prev when clientType=="l2tp", since MPPE isn't user-configurable there.
+func (c *Client) SetVPNClient(ctx context.Context, prev, next VPNClient) error {
+	return c.set(ctx, "SetPptpClientCfg", vpnClientForm(prev, next))
+}
+
+func vpnClientForm(prev, next VPNClient) url.Values {
+	clientType, domain, user, password := next.Type, next.Domain, next.User, next.Password
+	mppe, mppeBits := next.MPPE, next.MPPEBits
+	switch {
+	case !next.Enabled:
+		clientType, domain, user, password = prev.Type, prev.Domain, prev.User, prev.Password
+		mppe, mppeBits = prev.MPPE, prev.MPPEBits
+	case next.Type == "l2tp":
+		mppe, mppeBits = prev.MPPE, prev.MPPEBits
 	}
-	return c.set(ctx, "SetPptpClientCfg", form)
+	return url.Values{
+		"clientEn":     {flag(next.Enabled)},
+		"clientType":   {clientType},
+		"clientMppe":   {flag(mppe)},
+		"clientMppeOp": {strconv.Itoa(mppeBits)},
+		"domain":       {domain},
+		"userName":     {user},
+		"password":     {password},
+	}
 }
