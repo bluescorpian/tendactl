@@ -56,6 +56,44 @@ func TestParentalSetNewRule(t *testing.T) {
 	}
 }
 
+func TestParentalSetNewRuleRejectsBadMAC(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name, mac, wantErr string
+	}{
+		{"all-zero", "00:00:00:00:00:00", "cannot be 00:00:00:00:00:00"},
+		{"multicast bit set", "01:00:00:00:00:00", "must be an even number"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			r := tendatest.New(t)
+			// checkParentData() in fw/js/parental_control.js refuses to
+			// submit either shape when adding a brand-new device.
+			res := runCLI(t, r, "parental", "set", tt.mac, "--allow", "08:00-18:00")
+			if res.Code != 1 || !strings.Contains(res.Stderr, tt.wantErr) {
+				t.Fatalf("exit %d, stderr %q", res.Code, res.Stderr)
+			}
+			if n := len(r.CallsTo("saveParentControlInfo")); n != 0 {
+				t.Fatalf("posts = %d, want 0", n)
+			}
+		})
+	}
+}
+
+func TestParentalSetExistingRuleAllowsAnyMAC(t *testing.T) {
+	t.Parallel()
+	r := tendatest.New(t)
+	// The add-new-device MAC checks don't apply once a rule already exists
+	// for that device (checkParentData() only runs them for
+	// G_current_operate=="1"): editing must still work.
+	r.Reply("GetParentControlInfo", 200, `{"enable":1,"mac":"01:00:00:00:00:00","url_enable":0,"urls":"","time":"19:00-21:00","day":"1,1,1,1,1,1,1","limit_type":0}`)
+	mustRun(t, r, "parental", "set", "01:00:00:00:00:00", "--allow", "08:00-18:00")
+	if got := r.LastCall(t, "saveParentControlInfo").Form.Get("time"); got != "08:00-18:00" {
+		t.Fatalf("time = %q", got)
+	}
+}
+
 func TestParentalSetInvalidTime(t *testing.T) {
 	t.Parallel()
 	r := tendatest.New(t)

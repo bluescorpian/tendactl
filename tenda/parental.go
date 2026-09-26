@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -77,11 +78,37 @@ const parentalMaxRules = 30
 var parentalURLRe = regexp.MustCompile(`^[-.a-z0-9]{2,31}$`)
 
 var (
-	ErrParentalNoRule      = errors.New("no parental control rule for that MAC address")
-	ErrParentalFull        = fmt.Errorf("the router allows at most %d parental control rules", parentalMaxRules)
-	ErrParentalTooManyURLs = errors.New("at most 10 blocked-website keywords are allowed")
-	ErrParentalInvalidURL  = errors.New("invalid keyword: want 2-31 characters of a-z, 0-9, '.' or '-'")
+	ErrParentalNoRule       = errors.New("no parental control rule for that MAC address")
+	ErrParentalFull         = fmt.Errorf("the router allows at most %d parental control rules", parentalMaxRules)
+	ErrParentalTooManyURLs  = errors.New("at most 10 blocked-website keywords are allowed")
+	ErrParentalInvalidURL   = errors.New("invalid keyword: want 2-31 characters of a-z, 0-9, '.' or '-'")
+	ErrParentalMACAllZero   = errors.New("MAC address cannot be 00:00:00:00:00:00")
+	ErrParentalMACMulticast = errors.New("MAC address's second character must be an even number (the multicast/group bit can't be set)")
 )
+
+// ValidateNewParentalDeviceMAC applies the checks checkParentData() runs
+// only when adding a brand-new device (fw/js/parental_control.js): the
+// literal all-zero address, and any address with the multicast/group bit
+// set in its first octet (an odd second hex character), are both otherwise
+// well-formed MACs that ParseMAC accepts but the UI's add-device form
+// refuses to submit.
+func ValidateNewParentalDeviceMAC(mac string) error {
+	m, err := ParseMAC(mac)
+	if err != nil {
+		return err
+	}
+	if m == "00:00:00:00:00:00" {
+		return ErrParentalMACAllZero
+	}
+	nibble, err := strconv.ParseUint(m[1:2], 16, 8)
+	if err != nil {
+		return err
+	}
+	if nibble%2 != 0 {
+		return ErrParentalMACMulticast
+	}
+	return nil
+}
 
 // ParentalDevices reads GetParentCtrlList.
 func (c *Client) ParentalDevices(ctx context.Context) ([]ParentalDevice, error) {

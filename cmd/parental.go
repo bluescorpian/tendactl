@@ -77,6 +77,9 @@ quick block/allow toggle independent of that schedule.`,
 				return err
 			}
 			if !ok {
+				if err := tenda.ValidateNewParentalDeviceMAC(args[0]); err != nil {
+					return err
+				}
 				r = parentalDefaultRule(args[0])
 			}
 			r.Enabled = true

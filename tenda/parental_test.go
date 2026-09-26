@@ -126,6 +126,31 @@ func TestSetParentalRuleDisabled(t *testing.T) {
 	}
 }
 
+func TestValidateNewParentalDeviceMAC(t *testing.T) {
+	tests := []struct {
+		mac string
+		err error
+	}{
+		{"00:00:00:00:00:00", ErrParentalMACAllZero},
+		{"01:00:00:00:00:00", ErrParentalMACMulticast}, // second char "1" is odd
+		{"11:00:00:00:00:00", ErrParentalMACMulticast},
+		{"02:00:00:00:00:08", nil},
+		{"aa:bb:cc:dd:ee:ff", nil},
+	}
+	for _, tt := range tests {
+		err := ValidateNewParentalDeviceMAC(tt.mac)
+		if tt.err == nil {
+			if err != nil {
+				t.Errorf("ValidateNewParentalDeviceMAC(%q) = %v, want nil", tt.mac, err)
+			}
+			continue
+		}
+		if !errors.Is(err, tt.err) {
+			t.Errorf("ValidateNewParentalDeviceMAC(%q) = %v, want %v", tt.mac, err, tt.err)
+		}
+	}
+}
+
 func TestSetParentalRuleValidation(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r)
