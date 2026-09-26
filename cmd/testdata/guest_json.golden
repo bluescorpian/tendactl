@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "ssid": "WiFi-18",
+  "ssid5g": "WiFi-18",
+  "password": "********",
+  "effectiveTime": "0",
+  "shareSpeedMbps": 0
+}
