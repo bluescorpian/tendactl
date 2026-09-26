@@ -18,15 +18,28 @@ import (
 
 const Filename = "tendactl-session-password.txt"
 
-func SetSessionPassword(password string) error {
-	tempDir := os.TempDir()
-	filepath := filepath.Join(tempDir, Filename)
+// sessionPasswordPath keeps the session cookie in the per-user runtime dir
+// (0700, tmpfs, cleared at logout/reboot) so it stays session-scoped without
+// sharing a world-writable directory; /tmp is the fallback where it is unset.
+func sessionPasswordPath() string {
+	dir := os.Getenv("XDG_RUNTIME_DIR")
+	if dir == "" {
+		dir = os.TempDir()
+	}
+	return filepath.Join(dir, Filename)
+}
 
-	f, err := os.Create(filepath)
+func SetSessionPassword(password string) error {
+	f, err := os.OpenFile(sessionPasswordPath(), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
+
+	// OpenFile's mode only applies on creation; tighten a pre-existing file too.
+	if err := f.Chmod(0600); err != nil {
+		return err
+	}
 
 	_, err = f.WriteString(password)
 	if err != nil {
@@ -37,10 +50,7 @@ func SetSessionPassword(password string) error {
 }
 
 func GetSessionPassword() string {
-	tempDir := os.TempDir()
-	filepath := filepath.Join(tempDir, Filename)
-
-	f, err := os.Open(filepath)
+	f, err := os.Open(sessionPasswordPath())
 	if err != nil {
 		return ""
 	}
