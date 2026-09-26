@@ -27,6 +27,16 @@ func TestSysLogShowEmpty(t *testing.T) {
 	}
 }
 
+func TestSysLogError(t *testing.T) {
+	t.Parallel()
+	r := tendatest.New(t)
+	r.Reply("GetSySLogCfg", 500, "boom")
+	res := runCLI(t, r, "system", "log")
+	if res.Code != 1 || res.Stdout != "" || res.Stderr != "tendactl: GetSySLogCfg: HTTP 500: boom\n" {
+		t.Fatalf("exit %d, stdout %q, stderr %q", res.Code, res.Stdout, res.Stderr)
+	}
+}
+
 func TestSysLogDownload(t *testing.T) {
 	t.Parallel()
 	r := tendatest.New(t)
