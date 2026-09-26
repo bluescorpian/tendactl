@@ -19,7 +19,7 @@ func TestAntijam(t *testing.T) {
 	}
 }
 
-func TestSetAntijam(t *testing.T) {
+func TestAntijamSet(t *testing.T) {
 	for mode, wire := range map[string]string{"auto": "auto", "enable": "true", "disable": "false"} {
 		t.Run(mode, func(t *testing.T) {
 			r := tendatest.New(t)
