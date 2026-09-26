@@ -1,0 +1,119 @@
+[
+  {
+    "mac": "02:00:00:00:00:04",
+    "name": "Device-3",
+    "ip": "192.168.0.151",
+    "online": true,
+    "onlineTimeSeconds": 210,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:06",
+    "name": "Device-5",
+    "ip": "192.168.0.169",
+    "online": true,
+    "onlineTimeSeconds": 3148,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:03",
+    "name": "Device-10",
+    "ip": "192.168.0.181",
+    "online": true,
+    "onlineTimeSeconds": 6115,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:02",
+    "name": "Device-11",
+    "ip": "192.168.0.2",
+    "online": true,
+    "onlineTimeSeconds": 18420,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:07",
+    "name": "Device-6",
+    "ip": "192.168.0.141",
+    "online": true,
+    "onlineTimeSeconds": 36352,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:05",
+    "name": "Device-4",
+    "ip": "192.168.0.170",
+    "online": true,
+    "onlineTimeSeconds": 159016,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:0b",
+    "name": "Device-12",
+    "ip": "192.168.0.145",
+    "online": true,
+    "onlineTimeSeconds": 229393,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:0c",
+    "name": "Device-13",
+    "ip": "192.168.0.11",
+    "online": true,
+    "onlineTimeSeconds": 241606,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:08",
+    "name": "Device-7",
+    "ip": "192.168.0.31",
+    "online": true,
+    "onlineTimeSeconds": 630369,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:0a",
+    "name": "Device-9",
+    "ip": "192.168.0.30",
+    "online": true,
+    "onlineTimeSeconds": 630398,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:0d",
+    "name": "Device-14",
+    "ip": "192.168.0.10",
+    "online": true,
+    "onlineTimeSeconds": 630418,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:0e",
+    "name": "Device-15",
+    "ip": "192.168.0.5",
+    "online": true,
+    "onlineTimeSeconds": 630418,
+    "ruleSet": false,
+    "blocked": false
+  },
+  {
+    "mac": "02:00:00:00:00:09",
+    "name": "Device-8",
+    "ip": "192.168.0.32",
+    "online": true,
+    "onlineTimeSeconds": 630418,
+    "ruleSet": false,
+    "blocked": false
+  }
+]

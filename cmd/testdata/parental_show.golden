@@ -1,0 +1,6 @@
+Enabled:         on
+Allowed window:  19:00-21:00
+Days:            every day
+URL filter:      on
+Filter mode:     blacklist
+Keywords (2):    example,video

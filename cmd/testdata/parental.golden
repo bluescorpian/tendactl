@@ -1,0 +1,15 @@
+DEVICE NAME MAC ADDRESS       IP ADDRESS    STATUS RULE BLOCKED
+─────────── ───────────────── ───────────── ────── ──── ───────
+Device-3    02:00:00:00:00:04 192.168.0.151 online none no
+Device-5    02:00:00:00:00:06 192.168.0.169 online none no
+Device-10   02:00:00:00:00:03 192.168.0.181 online none no
+Device-11   02:00:00:00:00:02 192.168.0.2   online none no
+Device-6    02:00:00:00:00:07 192.168.0.141 online none no
+Device-4    02:00:00:00:00:05 192.168.0.170 online none no
+Device-12   02:00:00:00:00:0b 192.168.0.145 online none no
+Device-13   02:00:00:00:00:0c 192.168.0.11  online none no
+Device-7    02:00:00:00:00:08 192.168.0.31  online none no
+Device-9    02:00:00:00:00:0a 192.168.0.30  online none no
+Device-14   02:00:00:00:00:0d 192.168.0.10  online none no
+Device-15   02:00:00:00:00:0e 192.168.0.5   online none no
+Device-8    02:00:00:00:00:09 192.168.0.32  online none no
