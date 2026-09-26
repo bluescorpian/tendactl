@@ -1,0 +1,10 @@
+{
+  "enabled": false,
+  "window": "00:00-07:00",
+  "leds": "allClose",
+  "delay": true,
+  "workModeOk": true,
+  "ledWindow": "",
+  "wifiScheduleWindow": "",
+  "timeSynced": false
+}
