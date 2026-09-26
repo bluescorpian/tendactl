@@ -16,7 +16,7 @@ responses. It is the source for adding `tendactl` commands.
 
 **Auth.** `POST /login/Auth` with body `username=admin&password=<md5 hex of
 password>` sets a `password=<token>` cookie. A body of `1` means the password
-was wrong. `tenda/auth.go` implements this.
+was wrong. `tenda/client.go` implements this.
 
 **Session expiry.** Once the session expires, pages and goform endpoints
 answer `302` to `/login.html`. The UI also treats any response containing
@@ -100,12 +100,7 @@ confirmation flag in the CLI:
 
 ## Coverage in tendactl
 
-The CLI has three commands so far:
-- `status` uses `GetRouterStatus`.
-- `online` uses `getOnlineList`.
-- `vs` uses `GetVirtualServerCfg` and `SetVirtualServerCfg`.
-
-Everything else in this document has no command yet.
+Run `tendactl --help`; each command's endpoints are in `tenda/<feature>.go`.
 
 ## UI names
 

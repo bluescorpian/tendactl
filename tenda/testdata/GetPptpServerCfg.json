@@ -1,0 +1,1 @@
+[{"serverEn":"0","wanid":"1","mppe":"0","mppeOp":"128","startIp":"10.0.0.100","endIp":"10.0.0.200","lanIp":"192.168.0.1","lanMask":"255.255.255.0","guestIp":"192.168.10.1","guestMask":"255.255.255.0","serverIp":"","vlan2Ip":"","vlan2Mask":"","wanIp":"203.0.113.10","wanMask":"255.255.255.255","pptpSvrIp":"10.0.0.1","pptpSvrMask":"255.255.255.0"}]

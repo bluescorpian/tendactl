@@ -6,11 +6,12 @@
 
 -   View connected devices with upload/download speeds and identify guest network clients.
 -   Manage port forwarding (NAT) rules to open or close specific ports.
--   Check detailed router status including WAN IP, firmware version, and Wi-Fi configuration.
+-   Check router status including WAN IP, firmware version, and Wi-Fi configuration.
+-   Call any router endpoint directly with `tendactl api`.
 
 ## Installation
 
-1. Ensure you have Go (1.18+) installed.
+1. Ensure you have Go (1.26+) installed.
 2. Clone or download this repository.
 3. Navigate to the project’s root folder and build the CLI:
     ```bash
@@ -27,49 +28,57 @@
 
 ## Usage
 
-Below are the primary subcommands available under `tendactl`. Run each command with `--help` to see more details and available flags.
+Run `tendactl --help`, or `tendactl <command> --help`, for every command and flag.
 
-• Check Router Status  
-Shows WAN IP, up/down speed, Wi-Fi configuration (2.4/5 GHz), number of connected clients, firmware version, and more:
+### Connecting
+
+| Flag | Environment | Default | Meaning |
+|---|---|---|---|
+| `--host` | `TENDA_HOST` | `192.168.0.1` | Router address, `host[:port]` |
+| | `TENDA_PASSWORD` | (prompt) | Admin password; without it `tendactl` prompts when run in a terminal |
+| `-o`, `--output` | | `table` | `table` or `json` |
+| `-y`, `--yes` | | off | Allow hazardous requests (reboot, turning WiFi off, LAN or WAN changes, ...) |
+| `--timeout` | | `15s` | HTTP timeout per request |
+
+The session cookie is cached per host under `$XDG_RUNTIME_DIR` (mode 0600), so
+later commands need no password until the router expires the session.
+
+### Router status
 
 ```bash
 tendactl status
 ```
 
-• Check Online Clients  
-Displays currently connected devices, upload/download speeds (in KB/s), and identifies guest network clients:
+### Connected devices
 
 ```bash
-tendactl online
+tendactl clients        # also: tendactl online
 ```
 
-• Manage Port Forwarding (NAT) Rules  
-View all existing port forwarding rules:
+### Port forwarding (NAT)
 
 ```bash
-tendactl vs
+tendactl nat                                        # list rules
+tendactl nat add <ip> <inPort> [outPort] [--proto both|tcp|udp]
+tendactl nat rm <outPort>
 ```
 
-Add a new forwarding rule:
+`outPort` (the WAN port) defaults to `inPort` and identifies the rule; the
+protocol defaults to `both`.
+
+### Raw API access
 
 ```bash
-tendactl vs add <ip> <inPort> [outPort] [protocol]
+tendactl api get <Endpoint> [key=value...]
+tendactl api set <Endpoint> key=value...
 ```
 
-Where:
-• <ip> is the target device’s IP address.  
-• <inPort> is the internal port on the device.  
-• [outPort] optionally specifies the corresponding external port (defaults to <inPort> if not specified).  
-• [protocol] can be:  
- 0 → TCP & UDP  
- 1 → TCP  
- 2 → UDP
-
-Remove an existing forwarding rule:
-
-```bash
-tendactl vs delete <ip> <inPort> <outPort> <protocol>
-```
+`api` reaches every endpoint in [docs/router-api.md](docs/router-api.md),
+including the ones without a command (WAN, AP mode, firmware upgrade, ...).
+JSON replies are pretty-printed; other replies are written raw, so
+`tendactl api get cgi-bin/DownloadCfg/RouterCfm.cfg > backup.cfg` works. `set`
+fails on a non-zero `errCode`. Endpoints on the doc's "Never call casually"
+list still need `--yes`.
 
 ## License
 
