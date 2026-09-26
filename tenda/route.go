@@ -95,12 +95,19 @@ func (c *Client) SetRoutes(ctx context.Context, routes []Route) error {
 // loop-index bug that leaves it a no-op in the live UI, so tendactl does not
 // replicate it.
 func (c *Client) AddRoute(ctx context.Context, r Route) error {
-	if net.ParseIP(r.Network).To4() == nil {
+	network := net.ParseIP(r.Network).To4()
+	if network == nil {
 		return fmt.Errorf("invalid network address %q", r.Network)
 	}
-	if net.ParseIP(r.Mask).To4() == nil {
+	mask := net.ParseIP(r.Mask).To4()
+	if mask == nil {
 		return fmt.Errorf("invalid subnet mask %q", r.Mask)
 	}
+	// The #network/#mask blur handler in js/static_route.js always rewrites
+	// the network field to mask&network before getSubmitData() reads it, so
+	// the UI can never submit a network with host bits set; match that here
+	// rather than sending r.Network as given.
+	r.Network = maskIPv4(network, mask).String()
 	if r.Gateway == "" {
 		r.Gateway = "0.0.0.0"
 	}
@@ -150,4 +157,14 @@ func routeUserRoutes(routes []Route) []Route {
 		}
 	}
 	return user
+}
+
+// maskIPv4 ANDs ip and mask octet by octet, as the blur handler in
+// js/static_route.js does with the entered network/mask.
+func maskIPv4(ip, mask net.IP) net.IP {
+	out := make(net.IP, net.IPv4len)
+	for i := range out {
+		out[i] = ip[i] & mask[i]
+	}
+	return out
 }

@@ -55,6 +55,22 @@ func TestRouteAddDefaults(t *testing.T) {
 	}
 }
 
+func TestRouteAddMasksNetwork(t *testing.T) {
+	r := tendatest.New(t)
+	c := newTestClient(t, r)
+	// js/static_route.js's blur handler always rewrites #network to
+	// mask&network before the UI can submit it, so a network with host
+	// bits set (here, .5 under a /24) must reach the router as .0, not
+	// verbatim.
+	if err := c.AddRoute(context.Background(), Route{Network: "10.0.0.5", Mask: "255.255.255.0", Gateway: "192.168.0.254"}); err != nil {
+		t.Fatal(err)
+	}
+	want := url.Values{"list": {"10.0.0.0,255.255.255.0,192.168.0.254,WAN1"}}.Encode()
+	if got := r.LastCall(t, "SetStaticRouteCfg").RawBody; got != want {
+		t.Fatalf("body = %q\nwant   %q", got, want)
+	}
+}
+
 func TestRouteAddValidation(t *testing.T) {
 	tests := []struct {
 		name  string
