@@ -19,7 +19,7 @@ func TestWPS(t *testing.T) {
 	}
 }
 
-func TestSetWPS(t *testing.T) {
+func TestWPSSet(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r)
 	if err := c.SetWPS(context.Background(), WPS{Enabled: true}); err != nil {
@@ -31,7 +31,7 @@ func TestSetWPS(t *testing.T) {
 	}
 }
 
-func TestStartWPS(t *testing.T) {
+func TestWPSStart(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r)
 	if err := c.StartWPS(context.Background()); err != nil {
