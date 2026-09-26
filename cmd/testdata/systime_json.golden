@@ -1,0 +1,7 @@
+{
+  "timeZone": "14:00",
+  "time": "2000-01-08 07:07:10",
+  "synced": false,
+  "ntpServer": "time.windows.com",
+  "resyncSeconds": 86400
+}
