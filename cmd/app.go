@@ -10,7 +10,6 @@ import (
 
 	"github.com/bluescorpian/tendactl/tenda"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 // errNeedYes is the confirm hook's refusal; Execute turns it into a hint.
@@ -91,14 +90,14 @@ func update[T any](a *app, cmd *cobra.Command,
 	return a.done(cmd, "%s", done)
 }
 
-// changed reports whether any of the named flags was given; with no names,
-// whether any local flag was given.
+// changed reports whether any of the named flags was given. There is no
+// bare, zero-argument form: cmd.LocalNonPersistentFlags() builds a fresh
+// *pflag.FlagSet on every call via AddFlag, which shares the underlying
+// *pflag.Flag pointers but never runs Parse on itself, so its own Visit
+// always reports nothing regardless of what was actually parsed. Every
+// caller already names its flags, which reads cmd.Flags().Changed instead
+// and doesn't hit that trap.
 func changed(cmd *cobra.Command, names ...string) bool {
-	if len(names) == 0 {
-		n := 0
-		cmd.LocalNonPersistentFlags().Visit(func(*pflag.Flag) { n++ })
-		return n > 0
-	}
 	for _, n := range names {
 		if cmd.Flags().Changed(n) {
 			return true
