@@ -1,0 +1,27 @@
+INDEX TIME                TYPE   LOG
+───── ─────────────────── ────── ───────────────────────────
+    1 2000-01-01 00:00:00 system System Start Success
+    2 2000-01-01 00:00:08 system WAN1 Port phy status up.
+    3 2000-01-01 00:00:11 system 2.4G Main WiFi UP
+    4 2000-01-01 00:00:15 wan    PPPoE Send PADI
+    5 2000-01-01 00:00:15 wan    PPPoE Wait PADO
+    6 2000-01-01 00:00:20 system DHCP Server Start
+    7 2000-01-01 00:00:20 wan    PPPoE Wait for PADO timeout
+    8 2000-01-01 00:00:21 wan    PPPoE Send PADI
+    9 2000-01-01 00:00:21 wan    PPPoE Wait PADO
+   10 2000-01-01 00:00:24 system LAN2 up
+   11 2000-01-01 00:00:24 system LAN1 up
+   12 2000-01-01 00:00:31 wan    PPPoE Wait for PADO timeout
+   13 2000-01-01 00:00:32 wan    PPPoE Send PADI
+   14 2000-01-01 00:00:32 wan    PPPoE Wait PADO
+   15 2000-01-01 00:00:46 system WAN1 Port phy status down.
+   16 2000-01-01 00:00:50 system WAN1 down
+   17 2000-01-01 00:00:53 system WAN1 Port phy status up.
+   18 2000-01-01 00:00:56 wan    PPPoE Send PADI
+   19 2000-01-01 00:00:56 wan    PPPoE Wait PADO
+   20 2000-01-01 00:00:56 wan    PPPoE Recv PADO
+   21 2000-01-01 00:00:56 wan    PPPoE Send PADR
+   22 2000-01-01 00:00:56 wan    PPPoE Wait for PADS
+   23 2000-01-01 00:00:56 wan    PPPoE Recv PADS
+   24 2000-01-01 00:00:59 wan    LCP down
+   25 2000-01-01 00:00:59 wan    Get ip success
