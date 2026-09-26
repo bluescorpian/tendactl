@@ -54,6 +54,34 @@ func TestParentalRuleConfigured(t *testing.T) {
 	}
 }
 
+func TestParentalRuleFullDayWindowNormalized(t *testing.T) {
+	r := tendatest.New(t)
+	r.Reply("GetParentControlInfo", 200, `{"enable":1,"mac":"02:00:00:00:00:08","url_enable":0,"urls":"","time":"00:00-24:00","day":"1,1,1,1,1,1,1","limit_type":0}`)
+	c := newTestClient(t, r)
+	rule, ok, err := c.ParentalRule(context.Background(), "02:00:00:00:00:08")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// initParentControl() rewrites the router's "00:00-24:00" sentinel to
+	// "00:00-00:00" before it reaches the hour/minute selects
+	// (fw/js/parental_control.js), so a read must match that, not the raw
+	// wire value.
+	if !ok || rule.AllowedWindow != "00:00-00:00" {
+		t.Fatalf("rule = %+v", rule)
+	}
+	// A resave that doesn't touch the time fields submits whatever the
+	// selects were populated with, i.e. the normalized window, collapsing
+	// the full-day rule to midnight-midnight -- reproducing the UI's own
+	// resave-collapses-window quirk.
+	rule.Name = "Kids Tablet"
+	if err := c.SetParentalRule(context.Background(), rule); err != nil {
+		t.Fatal(err)
+	}
+	if got := r.LastCall(t, "saveParentControlInfo").Form.Get("time"); got != "00:00-00:00" {
+		t.Fatalf("time = %q, want %q", got, "00:00-00:00")
+	}
+}
+
 func TestParentalRuleSpecifiedDays(t *testing.T) {
 	r := tendatest.New(t)
 	r.Reply("GetParentControlInfo", 200, `{"enable":1,"mac":"x","url_enable":0,"urls":"","time":"08:00-18:00","day":"0,1,0,0,0,0,1","limit_type":1}`)

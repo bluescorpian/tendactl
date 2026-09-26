@@ -123,10 +123,21 @@ func (c *Client) ParentalRule(ctx context.Context, mac string) (r ParentalRule, 
 	}
 	days, everyDay := decodeParentalDays(w.Day)
 	return ParentalRule{
-		MAC: m, Enabled: w.Enable != 0, AllowedWindow: w.Time,
+		MAC: m, Enabled: w.Enable != 0, AllowedWindow: normalizeParentalWindow(w.Time),
 		Days: days, EveryDay: everyDay, URLFilterOn: w.UrlEnable != 0,
 		LimitType: parentalLimitTypeLabel(w.LimitType), URLs: parentalSplitURLs(w.Urls),
 	}, true, nil
+}
+
+// normalizeParentalWindow mirrors initParentControl(): the UI displays and
+// re-populates the router's "00:00-24:00" sentinel as "00:00-00:00" before
+// it ever reaches the hour/minute selects that a resave is built from
+// (fw/js/parental_control.js).
+func normalizeParentalWindow(w string) string {
+	if w == "00:00-24:00" {
+		return "00:00-00:00"
+	}
+	return w
 }
 
 func decodeParentalDays(raw string) (days []string, everyDay bool) {
