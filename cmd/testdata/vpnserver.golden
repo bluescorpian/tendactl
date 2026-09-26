@@ -1,0 +1,5 @@
+Enabled:     off
+Pool start:  10.0.0.100
+Pool end:    10.0.0.200
+MPPE:        off
+MPPE bits:   128

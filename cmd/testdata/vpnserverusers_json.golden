@@ -1,0 +1,8 @@
+[
+  {
+    "name": "alice",
+    "password": "********",
+    "enabled": true,
+    "connected": true
+  }
+]

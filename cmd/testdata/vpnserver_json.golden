@@ -1,0 +1,7 @@
+{
+  "enabled": false,
+  "startIp": "10.0.0.100",
+  "endIp": "10.0.0.200",
+  "mppe": false,
+  "mppeBits": 128
+}
