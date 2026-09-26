@@ -19,7 +19,7 @@ func TestBeamforming(t *testing.T) {
 	}
 }
 
-func TestSetBeamforming(t *testing.T) {
+func TestBeamformingSet(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r)
 	if err := c.SetBeamforming(context.Background(), Beamforming{Enabled: false}); err != nil {
