@@ -49,17 +49,13 @@ func TestBandwidthRm(t *testing.T) {
 	}
 }
 
-func TestBandwidthEnableDisable(t *testing.T) {
+func TestBandwidthNeverSendsGlobalSwitch(t *testing.T) {
 	t.Parallel()
 	r := tendatest.New(t)
-	// getSubmitData() in js/net_control.js never sends netControlEn, for
-	// enable, disable or any other SetNetControlList call: the real UI has
-	// no working way to toggle this switch.
-	mustRun(t, r, "bandwidth", "enable")
-	if _, present := r.LastCall(t, "SetNetControlList").Form["netControlEn"]; present {
-		t.Fatalf("form has netControlEn: %v", r.LastCall(t, "SetNetControlList").Form)
-	}
-	mustRun(t, r, "bandwidth", "disable")
+	// getSubmitData() in js/net_control.js never sends netControlEn: the
+	// firmware's UI has no working way to toggle the global switch, so
+	// neither does tendactl.
+	mustRun(t, r, "bandwidth", "set", "02:00:00:00:00:04", "--down", "1")
 	if _, present := r.LastCall(t, "SetNetControlList").Form["netControlEn"]; present {
 		t.Fatalf("form has netControlEn: %v", r.LastCall(t, "SetNetControlList").Form)
 	}

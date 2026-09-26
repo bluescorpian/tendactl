@@ -109,18 +109,6 @@ func (c *Client) setBandwidth(ctx context.Context, devices []BandwidthDevice) er
 	return c.set(ctx, "SetNetControlList", url.Values{"list": {list}})
 }
 
-// SetBandwidthEnabled resends every device's current limits unchanged. It
-// cannot actually change the global Bandwidth Control switch: the router's
-// own web UI has no way to either, in this firmware build (see
-// setBandwidth); the field is read-only via GetNetControlList.
-func (c *Client) SetBandwidthEnabled(ctx context.Context, enabled bool) error {
-	b, err := c.Bandwidth(ctx)
-	if err != nil {
-		return err
-	}
-	return c.setBandwidth(ctx, b.Devices)
-}
-
 // SetBandwidthLimit sets one device's upload and/or download cap in Mbps (0
 // = unlimited). A nil pointer leaves that direction unchanged.
 func (c *Client) SetBandwidthLimit(ctx context.Context, mac string, upMbps, downMbps *float64) error {

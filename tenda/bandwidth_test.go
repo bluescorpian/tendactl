@@ -93,19 +93,3 @@ func TestBandwidthRemoveLimit(t *testing.T) {
 		t.Fatalf("row 0 = %v", rows[0])
 	}
 }
-
-func TestBandwidthSetEnabled(t *testing.T) {
-	r := tendatest.New(t)
-	c := newTestClient(t, r)
-	if err := c.SetBandwidthEnabled(context.Background(), true); err != nil {
-		t.Fatal(err)
-	}
-	call := r.LastCall(t, "SetNetControlList")
-	if _, present := call.Form["netControlEn"]; present {
-		t.Fatalf("form has netControlEn: %v", call.Form)
-	}
-	rows := LineCR.Decode(call.Form.Get("list"))
-	if len(rows) != 13 {
-		t.Fatalf("rows = %d, want unchanged device list", len(rows))
-	}
-}
