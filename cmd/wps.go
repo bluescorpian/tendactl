@@ -25,7 +25,7 @@ func newWPSCmd(a *app) *cobra.Command {
 			return fields(out,
 				"Enabled", onOff(w.Enabled),
 				"PIN", w.PIN,
-				"AP mode", onOff(w.APMode),
+				"Wireless repeating", onOff(!w.APMode),
 				"2.4 GHz radio on", onOff(w.RadioOn),
 			)
 		})

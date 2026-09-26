@@ -1,8 +1,8 @@
-2.4 GHz mode:     bgn
+2.4 GHz mode:     11b/g/n mixed
 2.4 GHz channel:  auto
 2.4 GHz width:    20
 2.4 GHz country:  US
-5 GHz mode:       ac
+5 GHz mode:       11a/n/ac mixed
 5 GHz channel:    auto
-5 GHz width:      auto
+5 GHz width:      20/40/80
 5 GHz country:    US

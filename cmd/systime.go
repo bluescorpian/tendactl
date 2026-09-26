@@ -82,13 +82,39 @@ func newSysTimeCmd(a *app) *cobra.Command {
 	return cmd
 }
 
+// sysTimeZoneLabel renders SetSysTimeCfg's timeZone (the GMT offset plus
+// 12h, e.g. "14:00" = GMT+02:00; the ":10" variants duplicate the ":00"
+// offset) as "GMT±HH:MM" alongside the raw wire value.
+func sysTimeZoneLabel(raw string) string {
+	m := sysTimeZoneRe.FindStringSubmatch(raw)
+	if m == nil {
+		return raw
+	}
+	h, _ := strconv.Atoi(m[1])
+	min, _ := strconv.Atoi(m[2])
+	if min == 10 {
+		min = 0
+	}
+	total := h*60 + min - 12*60
+	gmt := "GMT"
+	if total != 0 {
+		sign := "+"
+		if total < 0 {
+			sign = "-"
+			total = -total
+		}
+		gmt += fmt.Sprintf("%s%02d:%02d", sign, total/60, total%60)
+	}
+	return fmt.Sprintf("%s (%s)", gmt, raw)
+}
+
 func sysTimeText(w io.Writer, s tenda.SysTime) error {
 	synced := "unsynchronized"
 	if s.Synced {
 		synced = "synchronized with internet time"
 	}
 	return fields(w,
-		"Time zone", s.TimeZone,
+		"Time zone", sysTimeZoneLabel(s.TimeZone),
 		"Current time", s.Time+" ("+synced+")",
 		"NTP server", s.NTPServer,
 	)

@@ -135,6 +135,25 @@ func lanParseOnOff(s string) (bool, error) {
 	}
 }
 
+// lanLeaseTimeLabel renders AdvSetLanip's leaseTime seconds as the UI's
+// "Lease Time" menu text.
+func lanLeaseTimeLabel(seconds string) string {
+	switch seconds {
+	case "604800":
+		return "7 days"
+	case "172800":
+		return "2 days"
+	case "86400":
+		return "1 day"
+	case "21600":
+		return "6 hours"
+	case "3600":
+		return "1 hour"
+	default:
+		return seconds + "s"
+	}
+}
+
 func lanText(w io.Writer, l tenda.LAN) error {
 	dns := l.DNS1 + ", " + l.DNS2
 	if l.DNSAuto {
@@ -145,7 +164,7 @@ func lanText(w io.Writer, l tenda.LAN) error {
 		"LAN mask", l.LANMask,
 		"DHCP server", onOff(l.DHCPEnabled),
 		"DHCP range", l.DHCPStart+" - "+l.DHCPEnd,
-		"Lease time", l.LeaseTime+"s",
+		"Lease time", lanLeaseTimeLabel(l.LeaseTime),
 		"DNS", dns,
 	)
 }

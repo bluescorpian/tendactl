@@ -152,7 +152,7 @@ func wifiScheduleText(w io.Writer, s tenda.WiFiSchedule) error {
 		"Off window", s.Start+"-"+s.End,
 		"Days", days,
 		"Sleeping Mode window", s.PowerSaveWindow,
-		"Router in AP mode", onOff(s.WorkModeOK),
+		"Wireless repeating", onOff(!s.WorkModeOK),
 		"Clock synced", onOff(s.TimeSynced),
 	)
 }

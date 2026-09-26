@@ -1,8 +1,8 @@
 Enabled:               off
 Window:                00:00-07:00
-LEDs off:              all
+LEDs off:              All off
 Delay while online:    on
-Router in AP mode:     on
+Wireless repeating:    off
 LED Control window:
 WiFi Schedule window:
 Clock synced:          off

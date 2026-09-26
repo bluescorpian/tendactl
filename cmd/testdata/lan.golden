@@ -2,5 +2,5 @@ LAN IP:       192.168.0.1
 LAN mask:     255.255.255.0
 DHCP server:  on
 DHCP range:   192.168.0.100 - 192.168.0.200
-Lease time:   604800s
+Lease time:   7 days
 DNS:          1.1.1.1, 8.8.8.8

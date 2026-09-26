@@ -1,4 +1,4 @@
-Enabled:           off
-PIN:               ********
-AP mode:           on
-2.4 GHz radio on:  on
+Enabled:             off
+PIN:                 ********
+Wireless repeating:  off
+2.4 GHz radio on:    on

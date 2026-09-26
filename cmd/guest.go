@@ -144,6 +144,15 @@ func guestEffectiveTimeLabel(s string) string {
 	}
 }
 
+// guestShareSpeedLabel renders WifiGuestSet's shareSpeed (Mbps, 0 =
+// unlimited) as the UI's "Shared Bandwidth for Guests" text.
+func guestShareSpeedLabel(mbps int) string {
+	if mbps == 0 {
+		return "unlimited"
+	}
+	return strconv.Itoa(mbps) + " Mbps"
+}
+
 func guestText(w io.Writer, g tenda.Guest) error {
 	return fields(w,
 		"Enabled", onOff(g.Enabled),
@@ -151,6 +160,6 @@ func guestText(w io.Writer, g tenda.Guest) error {
 		"5 GHz SSID", g.SSID5g,
 		"Password", g.Password,
 		"Validity", guestEffectiveTimeLabel(g.EffectiveTime),
-		"Shared bandwidth", strconv.Itoa(g.ShareSpeedMbps)+" Mbps (0 = unlimited)",
+		"Shared bandwidth", guestShareSpeedLabel(g.ShareSpeedMbps),
 	)
 }

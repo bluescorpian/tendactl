@@ -138,13 +138,6 @@ func sleepLEDsWire(s string) (string, error) {
 	}
 }
 
-func sleepLEDsLabel(s string) string {
-	if s == "unpowerClose" {
-		return "all except power"
-	}
-	return "all"
-}
-
 func sleepParseOnOff(s string) (bool, error) {
 	switch s {
 	case "on":
@@ -160,9 +153,9 @@ func sleepText(w io.Writer, s tenda.Sleep) error {
 	return fields(w,
 		"Enabled", onOff(s.Enabled),
 		"Window", s.Window,
-		"LEDs off", sleepLEDsLabel(s.LEDs),
+		"LEDs off", ledCloseTypeLabel(s.LEDs),
 		"Delay while online", onOff(s.Delay),
-		"Router in AP mode", onOff(s.WorkModeOK),
+		"Wireless repeating", onOff(!s.WorkModeOK),
 		"LED Control window", s.LEDWindow,
 		"WiFi Schedule window", s.WiFiScheduleWindow,
 		"Clock synced", onOff(s.TimeSynced),

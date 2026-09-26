@@ -134,14 +134,50 @@ func (b requiredBand) String() string {
 	return b.Band.String()
 }
 
+// wifiChannelModeLabel renders WifiRadioSet's adv_mode/adv_mode_5g enum as
+// the UI's "Network Mode" text.
+func wifiChannelModeLabel(mode string) string {
+	switch mode {
+	case "bgn":
+		return "11b/g/n mixed"
+	case "bg":
+		return "11b/g mixed"
+	case "n only":
+		return "11n"
+	case "ac":
+		return "11a/n/ac mixed"
+	case "ac only":
+		return "11ac"
+	default:
+		return mode
+	}
+}
+
+// wifiChannelWidthLabel renders adv_band/adv_band_5g's "auto" as the UI's
+// "WiFi Bandwidth" text; other widths (20, 40, 80) are shown as-is.
+func wifiChannelWidthLabel(width string, is5GHz bool) string {
+	if width != "auto" {
+		return width
+	}
+	if is5GHz {
+		return "20/40/80"
+	}
+	return "20/40"
+}
+
 func wifiChannelText(w io.Writer, ch tenda.WiFiChannel) error {
-	band := func(name string, r tenda.RadioBand) []string {
+	band := func(name string, r tenda.RadioBand, is5GHz bool) []string {
 		channel := "auto"
 		if r.Channel != 0 {
 			channel = strconv.Itoa(r.Channel)
 		}
-		return []string{name + " mode", r.Mode, name + " channel", channel, name + " width", r.Width, name + " country", r.Country}
+		return []string{
+			name + " mode", wifiChannelModeLabel(r.Mode),
+			name + " channel", channel,
+			name + " width", wifiChannelWidthLabel(r.Width, is5GHz),
+			name + " country", r.Country,
+		}
 	}
-	kv := append(band("2.4 GHz", ch.Band24), band("5 GHz", ch.Band5)...)
+	kv := append(band("2.4 GHz", ch.Band24, false), band("5 GHz", ch.Band5, true)...)
 	return fields(w, kv...)
 }

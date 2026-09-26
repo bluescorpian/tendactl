@@ -3,4 +3,4 @@ Enabled:           on
 5 GHz SSID:        WiFi-18
 Password:          ********
 Validity:          always
-Shared bandwidth:  0 Mbps (0 = unlimited)
+Shared bandwidth:  unlimited

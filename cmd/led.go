@@ -115,5 +115,5 @@ func newLEDCmd(a *app) *cobra.Command {
 }
 
 func ledText(w io.Writer, l tenda.LED) error {
-	return fields(w, "Mode", l.Mode, "Off window", l.Time, "Close type", l.CloseType)
+	return fields(w, "Mode", ledModeLabel(l.Mode), "Off window", l.Time, "Close type", ledCloseTypeLabel(l.CloseType))
 }

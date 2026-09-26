@@ -116,6 +116,53 @@ func onOff(b bool) string {
 	return "off"
 }
 
+// securityLabel renders a WifiBasicSet/WifiExtraSet security enum ("none",
+// "wpapsk", "wpa2psk", "wpawpa2psk") as the UI's "Encryption Mode" text.
+// Shared by wifi show and system status.
+func securityLabel(security string) string {
+	switch security {
+	case "none":
+		return "None"
+	case "wpapsk":
+		return "WPA-PSK"
+	case "wpa2psk":
+		return "WPA2-PSK"
+	case "wpawpa2psk":
+		return "WPA/WPA2-PSK"
+	default:
+		return security
+	}
+}
+
+// ledModeLabel renders SetLEDCfg's ledType ("close"/"open"/"time") as the
+// UI's "LED Control" text.
+func ledModeLabel(mode string) string {
+	switch mode {
+	case "close":
+		return "Always off"
+	case "open":
+		return "Always on"
+	case "time":
+		return "Schedule"
+	default:
+		return mode
+	}
+}
+
+// ledCloseTypeLabel renders ledCloseType ("allClose"/"unpowerClose") as the
+// UI's "Indicator" text. Shared by led and sleep, which both expose this
+// field.
+func ledCloseTypeLabel(closeType string) string {
+	switch closeType {
+	case "allClose":
+		return "All off"
+	case "unpowerClose":
+		return "All off except power"
+	default:
+		return closeType
+	}
+}
+
 // maskSecret hides s unless show is set.
 func maskSecret(s string, show bool) string {
 	if show || s == "" {
