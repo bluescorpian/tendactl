@@ -3,6 +3,7 @@ package tenda
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/bluescorpian/tendactl/tenda/tendatest"
@@ -34,8 +35,12 @@ func TestBandwidthSetLimit(t *testing.T) {
 		t.Fatal(err)
 	}
 	call := r.LastCall(t, "SetNetControlList")
-	if call.Form.Get("netControlEn") != "0" {
-		t.Fatalf("netControlEn = %q", call.Form.Get("netControlEn"))
+	// js/net_control.js's getSubmitData() never includes netControlEn in
+	// the outgoing body for any SetNetControlList call -- the field is
+	// commented out for every case, including a plain per-device limit
+	// edit like this one.
+	if _, present := call.Form["netControlEn"]; present {
+		t.Fatalf("form has netControlEn: %v", call.Form)
 	}
 	rows := LineCR.Decode(call.Form.Get("list"))
 	if len(rows) != 13 {
@@ -47,6 +52,9 @@ func TestBandwidthSetLimit(t *testing.T) {
 	// Other rows are unchanged.
 	if got := rows[1]; got[2] != "0" || got[3] != "0" {
 		t.Fatalf("row 1 = %v", got)
+	}
+	if !strings.HasPrefix(call.RawBody, "list=") {
+		t.Fatalf("body = %q, want it to start with %q", call.RawBody, "list=")
 	}
 }
 
@@ -93,8 +101,8 @@ func TestBandwidthSetEnabled(t *testing.T) {
 		t.Fatal(err)
 	}
 	call := r.LastCall(t, "SetNetControlList")
-	if call.Form.Get("netControlEn") != "1" {
-		t.Fatalf("netControlEn = %q", call.Form.Get("netControlEn"))
+	if _, present := call.Form["netControlEn"]; present {
+		t.Fatalf("form has netControlEn: %v", call.Form)
 	}
 	rows := LineCR.Decode(call.Form.Get("list"))
 	if len(rows) != 13 {

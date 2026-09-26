@@ -90,13 +90,14 @@ func (c *Client) Bandwidth(ctx context.Context) (Bandwidth, error) {
 	return b, nil
 }
 
-// setBandwidth posts the full device list plus the global enable flag.
-//
-// The doc's SetNetControlList request only documents the `list` field: the
-// UI's netControlEn checkbox is commented out and never posted today. That
-// field is present in the GET response, so this sends it alongside `list`
-// for `bandwidth enable`/`disable`; this is unverified against the router.
-func (c *Client) setBandwidth(ctx context.Context, enabled bool, devices []BandwidthDevice) error {
+// setBandwidth posts the full device list. getSubmitData() never includes
+// netControlEn in the outgoing body for any SetNetControlList call: the
+// field, and the conditional around it, are commented out in
+// js/net_control.js, and the on-page #netControlEn control is a purely
+// local UI-state toggle (it only starts/stops the page's 5s polling
+// interval) whose value is never read into the submitted string, for any
+// of enable, disable or a plain per-device limit edit.
+func (c *Client) setBandwidth(ctx context.Context, devices []BandwidthDevice) error {
 	rows := make([][]string, len(devices))
 	for i, d := range devices {
 		rows[i] = []string{d.Name, d.MAC, strconv.Itoa(int(d.LimitUpMbps * bandwidthKBpsPerMbps)), strconv.Itoa(int(d.LimitDownMbps * bandwidthKBpsPerMbps))}
@@ -105,17 +106,19 @@ func (c *Client) setBandwidth(ctx context.Context, enabled bool, devices []Bandw
 	if err != nil {
 		return err
 	}
-	return c.set(ctx, "SetNetControlList", url.Values{"netControlEn": {flag(enabled)}, "list": {list}})
+	return c.set(ctx, "SetNetControlList", url.Values{"list": {list}})
 }
 
-// SetBandwidthEnabled toggles the global Bandwidth Control switch, resending
-// every device's current limits unchanged.
+// SetBandwidthEnabled resends every device's current limits unchanged. It
+// cannot actually change the global Bandwidth Control switch: the router's
+// own web UI has no way to either, in this firmware build (see
+// setBandwidth); the field is read-only via GetNetControlList.
 func (c *Client) SetBandwidthEnabled(ctx context.Context, enabled bool) error {
 	b, err := c.Bandwidth(ctx)
 	if err != nil {
 		return err
 	}
-	return c.setBandwidth(ctx, enabled, b.Devices)
+	return c.setBandwidth(ctx, b.Devices)
 }
 
 // SetBandwidthLimit sets one device's upload and/or download cap in Mbps (0
@@ -135,7 +138,7 @@ func (c *Client) SetBandwidthLimit(ctx context.Context, mac string, upMbps, down
 	if downMbps != nil {
 		b.Devices[idx].LimitDownMbps = *downMbps
 	}
-	return c.setBandwidth(ctx, b.Enabled, b.Devices)
+	return c.setBandwidth(ctx, b.Devices)
 }
 
 // RemoveBandwidthLimit resets a device to unlimited in both directions.

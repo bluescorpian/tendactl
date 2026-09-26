@@ -83,7 +83,7 @@ func newBandwidthCmd(a *app) *cobra.Command {
 	})
 	cmd.AddCommand(&cobra.Command{
 		Use:   "enable",
-		Short: "Turn Bandwidth Control on",
+		Short: "Turn Bandwidth Control on (no effect: see tenda.SetBandwidthEnabled)",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			c, err := a.client()
@@ -98,7 +98,7 @@ func newBandwidthCmd(a *app) *cobra.Command {
 	})
 	cmd.AddCommand(&cobra.Command{
 		Use:   "disable",
-		Short: "Turn Bandwidth Control off",
+		Short: "Turn Bandwidth Control off (no effect: see tenda.SetBandwidthEnabled)",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			c, err := a.client()
