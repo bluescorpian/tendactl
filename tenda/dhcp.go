@@ -84,10 +84,9 @@ func (c *Client) DHCP(ctx context.Context) (DHCP, error) {
 }
 
 // SetDHCPBindings replaces the whole reservation list (SetIpMacBind). The
-// UI's callback for this endpoint always shows the same fixed success
-// message and never reads errCode -- the real errCode handling is commented
-// out (fw/js/ip_mac_bind.js) -- so this uses post, not set, and only
-// transport/session errors are reported.
+// UI ignores this endpoint's errCode (its handling is commented out in
+// js/ip_mac_bind.js), but the router answers 0 on a successful save, so a
+// non-zero code is reported as an error rather than hidden.
 func (c *Client) SetDHCPBindings(ctx context.Context, bindings []DHCPBinding) error {
 	rows := make([][]string, len(bindings))
 	for i, b := range bindings {
@@ -97,7 +96,7 @@ func (c *Client) SetDHCPBindings(ctx context.Context, bindings []DHCPBinding) er
 	if err != nil {
 		return err
 	}
-	return c.post(ctx, "SetIpMacBind", url.Values{"bindnum": {strconv.Itoa(len(bindings))}, "list": {list}})
+	return c.set(ctx, "SetIpMacBind", url.Values{"bindnum": {strconv.Itoa(len(bindings))}, "list": {list}})
 }
 
 // AddDHCPBinding reserves ip for mac, after the UI's checks: at most 32

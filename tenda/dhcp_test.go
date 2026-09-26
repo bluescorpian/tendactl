@@ -47,13 +47,8 @@ func TestDHCPAddBinding(t *testing.T) {
 	}
 }
 
-func TestDHCPAddBindingIgnoresErrCode(t *testing.T) {
+func TestDHCPAddBindingBody(t *testing.T) {
 	r := tendatest.New(t)
-	// The real UI's SetIpMacBind callback always shows a fixed success
-	// message and never reads errCode -- the check is commented out
-	// (fw/js/ip_mac_bind.js) -- so a non-zero errCode must not surface as
-	// an error here either.
-	r.ErrCode("SetIpMacBind", 1)
 	c := newTestClient(t, r)
 	if err := c.AddDHCPBinding(context.Background(), DHCPBinding{MAC: "AA:BB:CC:DD:EE:FF", IP: "192.168.0.50", Name: "New Device"}); err != nil {
 		t.Fatal(err)
@@ -141,5 +136,16 @@ func TestDHCPRemoveBinding(t *testing.T) {
 	}
 	if n := len(r.CallsTo("SetIpMacBind")); n != 1 {
 		t.Fatalf("posts = %d, want 1", n)
+	}
+}
+
+func TestDHCPSetReportsErrCode(t *testing.T) {
+	r := tendatest.New(t)
+	r.ErrCode("SetIpMacBind", 1)
+	c := newTestClient(t, r)
+	err := c.AddDHCPBinding(context.Background(), DHCPBinding{MAC: "AA:BB:CC:DD:EE:FF", IP: "192.168.0.50"})
+	var apiErr *APIError
+	if !errors.As(err, &apiErr) || apiErr.Code != 1 {
+		t.Fatalf("err = %v, want *APIError code 1", err)
 	}
 }

@@ -84,8 +84,8 @@ func (c *Client) setWith(ctx context.Context, endpoint string, form, before url.
 }
 
 // post sends form to an endpoint whose reply the UI ignores
-// (parentControlEn, fast_setting_internet_set, SetIpMacBind). Only
-// transport and session errors are reported.
+// (parentControlEn, fast_setting_internet_set). Only transport and session
+// errors are reported.
 func (c *Client) post(ctx context.Context, endpoint string, form url.Values) error {
 	if form == nil {
 		form = url.Values{}
