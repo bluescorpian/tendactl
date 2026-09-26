@@ -1,0 +1,6 @@
+{
+  "icmpFloodDefense": true,
+  "tcpFloodDefense": true,
+  "udpFloodDefense": true,
+  "ignoreWanPing": false
+}

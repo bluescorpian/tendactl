@@ -1,0 +1,4 @@
+ICMP flood defense:  on
+TCP flood defense:   on
+UDP flood defense:   on
+Ignore WAN ping:     off
