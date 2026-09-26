@@ -32,13 +32,15 @@ func newDDNSCmd(a *app) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  show,
 	}
-	cmd.PersistentFlags().BoolVar(&showPassword, "show-password", false, "show the DDNS password instead of masking it")
-	cmd.AddCommand(&cobra.Command{
+	cmd.Flags().BoolVar(&showPassword, "show-password", false, "show the DDNS password instead of masking it")
+	showCmd := &cobra.Command{
 		Use:   "show",
 		Short: "Show the DDNS configuration",
 		Args:  cobra.NoArgs,
 		RunE:  show,
-	})
+	}
+	showCmd.Flags().BoolVar(&showPassword, "show-password", false, "show the DDNS password instead of masking it")
+	cmd.AddCommand(showCmd)
 
 	var provider, domain, user, password string
 	set := &cobra.Command{

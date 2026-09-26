@@ -38,13 +38,15 @@ radio on.`,
 		Args: cobra.NoArgs,
 		RunE: show,
 	}
-	cmd.PersistentFlags().BoolVar(&showPassword, "show-password", false, "show the WPS PIN instead of masking it")
-	cmd.AddCommand(&cobra.Command{
+	cmd.Flags().BoolVar(&showPassword, "show-password", false, "show the WPS PIN instead of masking it")
+	showCmd := &cobra.Command{
 		Use:   "show",
 		Short: "Show WPS status",
 		Args:  cobra.NoArgs,
 		RunE:  show,
-	})
+	}
+	showCmd.Flags().BoolVar(&showPassword, "show-password", false, "show the WPS PIN instead of masking it")
+	cmd.AddCommand(showCmd)
 	cmd.AddCommand(&cobra.Command{
 		Use:   "enable",
 		Short: "Enable WPS",

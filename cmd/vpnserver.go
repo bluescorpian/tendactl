@@ -160,13 +160,15 @@ func newVPNServerUsersCmd(a *app) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  list,
 	}
-	cmd.PersistentFlags().BoolVar(&showPassword, "show-password", false, "show account passwords instead of masking them")
-	cmd.AddCommand(&cobra.Command{
+	cmd.Flags().BoolVar(&showPassword, "show-password", false, "show account passwords instead of masking them")
+	listCmd := &cobra.Command{
 		Use:   "list",
 		Short: "List PPTP server user accounts",
 		Args:  cobra.NoArgs,
 		RunE:  list,
-	})
+	}
+	listCmd.Flags().BoolVar(&showPassword, "show-password", false, "show account passwords instead of masking them")
+	cmd.AddCommand(listCmd)
 
 	var password string
 	add := &cobra.Command{

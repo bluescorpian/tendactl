@@ -35,13 +35,15 @@ server.`,
 		Args: cobra.NoArgs,
 		RunE: show,
 	}
-	cmd.PersistentFlags().BoolVar(&showPassword, "show-password", false, "show the client password instead of masking it")
-	cmd.AddCommand(&cobra.Command{
+	cmd.Flags().BoolVar(&showPassword, "show-password", false, "show the client password instead of masking it")
+	showCmd := &cobra.Command{
 		Use:   "show",
 		Short: "Show the VPN client configuration",
 		Args:  cobra.NoArgs,
 		RunE:  show,
-	})
+	}
+	showCmd.Flags().BoolVar(&showPassword, "show-password", false, "show the client password instead of masking it")
+	cmd.AddCommand(showCmd)
 
 	var vpnType, domain, user, password, mppe string
 	var mppeBits int

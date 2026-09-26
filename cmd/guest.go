@@ -32,13 +32,15 @@ func newGuestCmd(a *app) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  show,
 	}
-	cmd.PersistentFlags().BoolVar(&showPassword, "show-password", false, "show the guest password instead of masking it")
-	cmd.AddCommand(&cobra.Command{
+	cmd.Flags().BoolVar(&showPassword, "show-password", false, "show the guest password instead of masking it")
+	showCmd := &cobra.Command{
 		Use:   "show",
 		Short: "Show the guest network",
 		Args:  cobra.NoArgs,
 		RunE:  show,
-	})
+	}
+	showCmd.Flags().BoolVar(&showPassword, "show-password", false, "show the guest password instead of masking it")
+	cmd.AddCommand(showCmd)
 
 	var band tenda.Band
 	var ssid, password, effectiveTime string
