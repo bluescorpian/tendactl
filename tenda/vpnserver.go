@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 // VPNServer is "PPTP Server" (VPN tab): server-wide settings from
@@ -152,6 +153,22 @@ func (c *Client) VPNServerUsers(ctx context.Context) ([]VPNServerUser, error) {
 	return out, nil
 }
 
+// vpnServerEncodeURIComponent escapes s the way the UI's JS does before packing a
+// field into setPptpUserList's list value (doc: `username`/`password` are
+// `encodeURIComponent`-escaped). This must not be url.QueryEscape directly:
+// QueryEscape turns a space into '+' and percent-escapes !'()* as well,
+// where JS's encodeURIComponent percent-escapes a space (%20) and leaves
+// !'()* literal. The space matters beyond cosmetics — after this string is
+// split back out of the list by the firmware's own per-field decode (not
+// the outer x-www-form-urlencoded decode, which already happened), that
+// decode is a plain percent-decode matching decodeURIComponent, which
+// treats '+' literally rather than as encoded space; a stray '+' from
+// QueryEscape would therefore end up stored verbatim in the credential
+// instead of decoding back to a space.
+func vpnServerEncodeURIComponent(s string) string {
+	return strings.ReplaceAll(url.QueryEscape(s), "+", "%20")
+}
+
 // setVPNServerUsers replaces the whole user table (setPptpUserList). Name
 // and Password are url-encoded per the doc, which prevents a ';' or '~' in
 // either from being mistaken for a separator; a literal '~' is still
@@ -161,7 +178,7 @@ func (c *Client) VPNServerUsers(ctx context.Context) ([]VPNServerUser, error) {
 func (c *Client) setVPNServerUsers(ctx context.Context, users []VPNServerUser) error {
 	rows := make([][]string, len(users))
 	for i, u := range users {
-		rows[i] = []string{url.QueryEscape(u.Name), url.QueryEscape(u.Password), flag(u.Enabled), "0", "", "", ""}
+		rows[i] = []string{vpnServerEncodeURIComponent(u.Name), vpnServerEncodeURIComponent(u.Password), flag(u.Enabled), "0", "", "", ""}
 	}
 	list, err := TildeSemi.Encode(rows)
 	if err != nil {

@@ -80,6 +80,24 @@ func TestVPNServerAddUser(t *testing.T) {
 	}
 }
 
+// TestVPNServerAddUserSpace: a space in the name/password must be escaped
+// as the browser's encodeURIComponent would (%20), not as Go's
+// url.QueryEscape would on its own ('+') — see encodeURIComponent's doc
+// comment for why a bare '+' would corrupt the stored credential.
+func TestVPNServerAddUserSpace(t *testing.T) {
+	r := tendatest.New(t)
+	r.Reply("GetPptpServerCfg", 200, vpnServerFixtureWithUsers)
+	c := newTestClient(t, r)
+	if err := c.AddVPNServerUser(context.Background(), "carol jones", "p ss!'()*word"); err != nil {
+		t.Fatal(err)
+	}
+	list := "alice;s3cret;1;0;;;~bob;hunter2;0;0;;;~carol%20jones;p%20ss%21%27%28%29%2Aword;1;0;;;"
+	want := url.Values{"list": {list}}.Encode()
+	if got := r.LastCall(t, "setPptpUserList").RawBody; got != want {
+		t.Fatalf("body = %q\nwant   %q", got, want)
+	}
+}
+
 // TestVPNServerAddUserSeparator: url-encoding a password does not escape
 // '~' (Go's url.QueryEscape leaves it unreserved), so a literal '~' is
 // still refused by TildeSemi.Encode rather than silently corrupting the
