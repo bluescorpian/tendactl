@@ -124,15 +124,26 @@ func (c *Client) VPNServer(ctx context.Context) (VPNServer, error) {
 // the user account list, which SetPptpServerCfg's own doc section notes it
 // deliberately excludes; use AddVPNServerUser/RemoveVPNServerUser/
 // SetVPNServerUserEnabled for that.
-func (c *Client) SetVPNServer(ctx context.Context, s VPNServer) error {
-	form := url.Values{
-		"serverEn": {flag(s.Enabled)},
-		"startIp":  {s.StartIP},
-		"endIp":    {s.EndIP},
-		"mppe":     {flag(s.MPPE)},
-		"mppeOp":   {strconv.Itoa(s.MPPEBits)},
+//
+// prev is the value most recently read. When next.Enabled is false, the
+// UI's getSubmitData() resends prev's startIp/endIp/mppe/mppeOp unchanged,
+// ignoring whatever next asks to change (js/pptp_server.js).
+func (c *Client) SetVPNServer(ctx context.Context, prev, next VPNServer) error {
+	return c.set(ctx, "SetPptpServerCfg", vpnServerForm(prev, next))
+}
+
+func vpnServerForm(prev, next VPNServer) url.Values {
+	startIP, endIP, mppe, mppeBits := next.StartIP, next.EndIP, next.MPPE, next.MPPEBits
+	if !next.Enabled {
+		startIP, endIP, mppe, mppeBits = prev.StartIP, prev.EndIP, prev.MPPE, prev.MPPEBits
 	}
-	return c.set(ctx, "SetPptpServerCfg", form)
+	return url.Values{
+		"serverEn": {flag(next.Enabled)},
+		"startIp":  {startIP},
+		"endIp":    {endIP},
+		"mppe":     {flag(mppe)},
+		"mppeOp":   {strconv.Itoa(mppeBits)},
+	}
 }
 
 // VPNServerUsers reads the configured PPTP server user accounts, the rows

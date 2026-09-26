@@ -48,6 +48,23 @@ func TestVPNServerSetInvalidMPPEBits(t *testing.T) {
 func TestVPNServerSet(t *testing.T) {
 	t.Parallel()
 	r := tendatest.New(t)
+	// The fixture's PPTP server starts disabled; js/pptp_server.js's
+	// getSubmitData() resends prev's startIp/endIp/mppe/mppeOp unchanged
+	// whenever serverEn isn't "1", so these flags must not reach the wire.
+	mustRun(t, r, "vpn", "server", "set", "--pool-start", "10.0.0.50", "--pool-end", "10.0.0.60", "--mppe", "on", "--mppe-bits", "40")
+	got := r.LastCall(t, "SetPptpServerCfg").Form
+	if got.Get("serverEn") != "0" {
+		t.Fatalf("serverEn = %v", got)
+	}
+	if got.Get("startIp") != "10.0.0.100" || got.Get("endIp") != "10.0.0.200" || got.Get("mppe") != "0" || got.Get("mppeOp") != "128" {
+		t.Fatalf("form = %v", got)
+	}
+}
+
+func TestVPNServerSetWhileEnabled(t *testing.T) {
+	t.Parallel()
+	r := tendatest.New(t)
+	r.Reply("GetPptpServerCfg", 200, `[{"serverEn":"1","wanid":"1","mppe":"0","mppeOp":"128","startIp":"10.0.0.100","endIp":"10.0.0.200","lanIp":"192.168.0.1","lanMask":"255.255.255.0","guestIp":"192.168.10.1","guestMask":"255.255.255.0","serverIp":"","vlan2Ip":"","vlan2Mask":"","wanIp":"203.0.113.10","wanMask":"255.255.255.255","pptpSvrIp":"10.0.0.1","pptpSvrMask":"255.255.255.0"}]`)
 	mustRun(t, r, "vpn", "server", "set", "--pool-start", "10.0.0.50", "--pool-end", "10.0.0.60", "--mppe", "on", "--mppe-bits", "40")
 	got := r.LastCall(t, "SetPptpServerCfg").Form
 	if got.Get("startIp") != "10.0.0.50" || got.Get("endIp") != "10.0.0.60" || got.Get("mppe") != "1" || got.Get("mppeOp") != "40" {

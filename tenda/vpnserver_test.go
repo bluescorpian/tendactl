@@ -25,11 +25,30 @@ func TestVPNServer(t *testing.T) {
 func TestVPNServerSet(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r)
-	s := VPNServer{Enabled: true, StartIP: "10.0.0.100", EndIP: "10.0.0.200", MPPE: true, MPPEBits: 40}
-	if err := c.SetVPNServer(context.Background(), s); err != nil {
+	prev := VPNServer{Enabled: true, StartIP: "10.0.0.50", EndIP: "10.0.0.99", MPPE: false, MPPEBits: 128}
+	next := VPNServer{Enabled: true, StartIP: "10.0.0.100", EndIP: "10.0.0.200", MPPE: true, MPPEBits: 40}
+	if err := c.SetVPNServer(context.Background(), prev, next); err != nil {
 		t.Fatal(err)
 	}
 	want := url.Values{"serverEn": {"1"}, "startIp": {"10.0.0.100"}, "endIp": {"10.0.0.200"}, "mppe": {"1"}, "mppeOp": {"40"}}.Encode()
+	if got := r.LastCall(t, "SetPptpServerCfg").RawBody; got != want {
+		t.Fatalf("body = %q, want %q", got, want)
+	}
+}
+
+func TestVPNServerSetWhileDisabledResendsPrevFields(t *testing.T) {
+	r := tendatest.New(t)
+	c := newTestClient(t, r)
+	// js/pptp_server.js's getSubmitData() resends prev's
+	// startIp/endIp/mppe/mppeOp unchanged whenever the submitted serverEn
+	// isn't "1", ignoring whatever next asks to change.
+	prev := VPNServer{Enabled: false, StartIP: "10.0.0.100", EndIP: "10.0.0.200", MPPE: false, MPPEBits: 128}
+	next := prev
+	next.StartIP, next.EndIP, next.MPPE, next.MPPEBits = "10.0.0.50", "10.0.0.99", true, 40
+	if err := c.SetVPNServer(context.Background(), prev, next); err != nil {
+		t.Fatal(err)
+	}
+	want := url.Values{"serverEn": {"0"}, "startIp": {"10.0.0.100"}, "endIp": {"10.0.0.200"}, "mppe": {"0"}, "mppeOp": {"128"}}.Encode()
 	if got := r.LastCall(t, "SetPptpServerCfg").RawBody; got != want {
 		t.Fatalf("body = %q, want %q", got, want)
 	}

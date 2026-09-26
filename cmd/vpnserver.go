@@ -65,11 +65,7 @@ encryption. User accounts are managed with "vpn users".`,
 			if changed(cmd, "mppe-bits") && mppeBits != 40 && mppeBits != 128 {
 				return fmt.Errorf("invalid --mppe-bits %d: want 40 or 128", mppeBits)
 			}
-			c, err := a.client()
-			if err != nil {
-				return err
-			}
-			return update(a, cmd, c.VPNServer, c.SetVPNServer, func(s *tenda.VPNServer) error {
+			return vpnServerApply(a, cmd, func(s *tenda.VPNServer) {
 				if changed(cmd, "pool-start") {
 					s.StartIP = startIP
 				}
@@ -82,7 +78,6 @@ encryption. User accounts are managed with "vpn users".`,
 				if changed(cmd, "mppe-bits") {
 					s.MPPEBits = mppeBits
 				}
-				return nil
 			}, "PPTP server settings updated")
 		},
 	}
@@ -97,11 +92,7 @@ encryption. User accounts are managed with "vpn users".`,
 		Short: "Turn the PPTP server on",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			c, err := a.client()
-			if err != nil {
-				return err
-			}
-			return update(a, cmd, c.VPNServer, c.SetVPNServer, func(s *tenda.VPNServer) error { s.Enabled = true; return nil }, "PPTP server enabled")
+			return vpnServerApply(a, cmd, func(s *tenda.VPNServer) { s.Enabled = true }, "PPTP server enabled")
 		},
 	})
 	cmd.AddCommand(&cobra.Command{
@@ -109,14 +100,31 @@ encryption. User accounts are managed with "vpn users".`,
 		Short: "Turn the PPTP server off",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			c, err := a.client()
-			if err != nil {
-				return err
-			}
-			return update(a, cmd, c.VPNServer, c.SetVPNServer, func(s *tenda.VPNServer) error { s.Enabled = false; return nil }, "PPTP server disabled")
+			return vpnServerApply(a, cmd, func(s *tenda.VPNServer) { s.Enabled = false }, "PPTP server disabled")
 		},
 	})
 	return cmd
+}
+
+// vpnServerApply is the prev-aware read-modify-write helper: SetVPNServer
+// needs the previous value to reproduce the UI's disabled-state lock (see
+// tenda.SetVPNServer), so it cannot go through the generic update[T].
+func vpnServerApply(a *app, cmd *cobra.Command, mutate func(*tenda.VPNServer), done string) error {
+	c, err := a.client()
+	if err != nil {
+		return err
+	}
+	ctx := cmd.Context()
+	prev, err := c.VPNServer(ctx)
+	if err != nil {
+		return err
+	}
+	next := prev
+	mutate(&next)
+	if err := c.SetVPNServer(ctx, prev, next); err != nil {
+		return err
+	}
+	return a.done(cmd, "%s", done)
 }
 
 func vpnServerParseOnOff(s, flagName string) (bool, error) {
