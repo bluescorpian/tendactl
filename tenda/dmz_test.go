@@ -20,7 +20,7 @@ func TestDMZ(t *testing.T) {
 	}
 }
 
-func TestSetDMZ(t *testing.T) {
+func TestDMZSet(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r)
 	if err := c.SetDMZ(context.Background(), DMZ{Enabled: true, HostIP: "192.168.0.100"}); err != nil {
@@ -32,7 +32,7 @@ func TestSetDMZ(t *testing.T) {
 	}
 }
 
-func TestSetDMZHostIsLAN(t *testing.T) {
+func TestDMZSetHostIsLAN(t *testing.T) {
 	r := tendatest.New(t)
 	r.ErrCode("SetDMZCfg", 2)
 	err := newTestClient(t, r).SetDMZ(context.Background(), DMZ{Enabled: true, HostIP: "192.168.0.1"})
