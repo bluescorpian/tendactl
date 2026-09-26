@@ -34,7 +34,7 @@ func TestUPnPMappings(t *testing.T) {
 	}
 }
 
-func TestSetUPnP(t *testing.T) {
+func TestUPnPSet(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r)
 	if err := c.SetUPnP(context.Background(), UPnP{Enabled: false}); err != nil {
