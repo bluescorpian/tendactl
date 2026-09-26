@@ -3,6 +3,7 @@ package tenda
 import (
 	"context"
 	"errors"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -43,6 +44,31 @@ func TestDHCPAddBinding(t *testing.T) {
 		"New Device\raa:bb:cc:dd:ee:ff\r192.168.0.50"
 	if got := call.Form.Get("list"); got != wantList {
 		t.Fatalf("list = %q\nwant   %q", got, wantList)
+	}
+}
+
+func TestDHCPAddBindingIgnoresErrCode(t *testing.T) {
+	r := tendatest.New(t)
+	// The real UI's SetIpMacBind callback always shows a fixed success
+	// message and never reads errCode -- the check is commented out
+	// (fw/js/ip_mac_bind.js) -- so a non-zero errCode must not surface as
+	// an error here either.
+	r.ErrCode("SetIpMacBind", 1)
+	c := newTestClient(t, r)
+	if err := c.AddDHCPBinding(context.Background(), DHCPBinding{MAC: "AA:BB:CC:DD:EE:FF", IP: "192.168.0.50", Name: "New Device"}); err != nil {
+		t.Fatal(err)
+	}
+	call := r.LastCall(t, "SetIpMacBind")
+	if call.Form.Get("bindnum") != "4" {
+		t.Fatalf("bindnum = %q", call.Form.Get("bindnum"))
+	}
+	wantList := "Device-7\r02:00:00:00:00:08\r192.168.0.31\n" +
+		"Device-8\r02:00:00:00:00:09\r192.168.0.32\n" +
+		"Device-9\r02:00:00:00:00:0a\r192.168.0.30\n" +
+		"New Device\raa:bb:cc:dd:ee:ff\r192.168.0.50"
+	want := url.Values{"bindnum": {"4"}, "list": {wantList}}.Encode()
+	if got := call.RawBody; got != want {
+		t.Fatalf("body = %q, want %q", got, want)
 	}
 }
 
