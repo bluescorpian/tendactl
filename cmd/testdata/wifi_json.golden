@@ -1,0 +1,22 @@
+{
+  "band24": {
+    "enabled": true,
+    "ssid": "WiFi-16",
+    "hidden": true,
+    "security": "wpa2psk",
+    "password": "********"
+  },
+  "band5": {
+    "enabled": false,
+    "ssid": "WiFi-17",
+    "hidden": false,
+    "security": "wpa2psk",
+    "password": "********"
+  },
+  "scheduleEnabled": false,
+  "wpsEnabled": false,
+  "beamformingEnabled": true,
+  "apModeEnabled": false,
+  "repeatingEnabled": false,
+  "antijam": "auto"
+}

@@ -1,0 +1,16 @@
+2.4 GHz:             on
+2.4 GHz SSID:        WiFi-16
+2.4 GHz hidden:      on
+2.4 GHz security:    wpa2psk
+2.4 GHz password:    ********
+5 GHz:               off
+5 GHz SSID:          WiFi-17
+5 GHz hidden:        off
+5 GHz security:      wpa2psk
+5 GHz password:      ********
+Schedule:            off
+WPS:                 off
+Beamforming:         on
+AP mode:             off
+Wireless repeating:  off
+Anti-interference:   auto
