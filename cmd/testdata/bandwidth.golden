@@ -1,0 +1,17 @@
+Bandwidth Control:  off
+
+DEVICE NAME MAC ADDRESS       ↑KB/s ↓KB/s UP LIMIT  DOWN LIMIT STATUS
+─────────── ───────────────── ───── ───── ───────── ────────── ──────
+Device-3    02:00:00:00:00:04     2   260 unlimited unlimited  online
+Device-5    02:00:00:00:00:06     0     0 unlimited unlimited  online
+Device-10   02:00:00:00:00:03     0     0 unlimited unlimited  online
+Device-11   02:00:00:00:00:02     0     0 unlimited unlimited  online
+Device-6    02:00:00:00:00:07     0     0 unlimited unlimited  online
+Device-4    02:00:00:00:00:05     0     6 unlimited unlimited  online
+Device-12   02:00:00:00:00:0b     0     0 unlimited unlimited  online
+Device-13   02:00:00:00:00:0c     0     0 unlimited unlimited  online
+Device-7    02:00:00:00:00:08     0     0 unlimited unlimited  online
+Device-9    02:00:00:00:00:0a     0     0 unlimited unlimited  online
+Device-14   02:00:00:00:00:0d     0     0 unlimited unlimited  online
+Device-15   02:00:00:00:00:0e     0     0 unlimited unlimited  online
+Device-8    02:00:00:00:00:09     0     0 unlimited unlimited  online
