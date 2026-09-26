@@ -1,0 +1,18 @@
+LAN IP:    192.168.0.1
+LAN mask:  255.255.255.0
+
+DEVICE NAME MAC ADDRESS       IP ADDRESS   STATUS
+─────────── ───────────────── ──────────── ──────
+Device-7    02:00:00:00:00:08 192.168.0.31 online
+Device-8    02:00:00:00:00:09 192.168.0.32 online
+Device-9    02:00:00:00:00:0a 192.168.0.30 online
+
+Other DHCP clients (not reserved):
+DEVICE NAME MAC ADDRESS       IP ADDRESS    STATUS
+─────────── ───────────────── ───────────── ──────
+Device-1    02:00:00:00:00:03 192.168.0.181 online
+Device-2    02:00:00:00:00:02 192.168.0.188 online
+Device-3    02:00:00:00:00:04 192.168.0.151 online
+Device-4    02:00:00:00:00:05 192.168.0.170 online
+Device-5    02:00:00:00:00:06 192.168.0.169 online
+Device-6    02:00:00:00:00:07 192.168.0.141 online
