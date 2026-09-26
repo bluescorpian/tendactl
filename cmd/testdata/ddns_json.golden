@@ -1,0 +1,8 @@
+{
+  "enabled": false,
+  "provider": "no-ip.com",
+  "user": "",
+  "password": "",
+  "domain": "",
+  "connected": false
+}
