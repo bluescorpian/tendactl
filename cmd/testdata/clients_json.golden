@@ -1,0 +1,154 @@
+{
+  "host": {
+    "ip": "192.168.0.2",
+    "name": "Device-11",
+    "mac": "02:00:00:00:00:02",
+    "wireless": false
+  },
+  "macFilterMode": "black",
+  "clients": [
+    {
+      "mac": "02:00:00:00:00:04",
+      "ip": "192.168.0.151",
+      "name": "Device-3",
+      "upKBps": "5",
+      "downKBps": "144",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:06",
+      "ip": "192.168.0.169",
+      "name": "Device-5",
+      "upKBps": "0",
+      "downKBps": "0",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:03",
+      "ip": "192.168.0.181",
+      "name": "Device-10",
+      "upKBps": "0",
+      "downKBps": "0",
+      "linkType": "unknown",
+      "line": "2.4",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:02",
+      "ip": "192.168.0.2",
+      "name": "Device-11",
+      "upKBps": "0",
+      "downKBps": "0",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:07",
+      "ip": "192.168.0.141",
+      "name": "Device-6",
+      "upKBps": "0",
+      "downKBps": "0",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:05",
+      "ip": "192.168.0.170",
+      "name": "Device-4",
+      "upKBps": "0",
+      "downKBps": "31",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:0b",
+      "ip": "192.168.0.145",
+      "name": "Device-12",
+      "upKBps": "0",
+      "downKBps": "0",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:0c",
+      "ip": "192.168.0.11",
+      "name": "Device-13",
+      "upKBps": "0",
+      "downKBps": "0",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:08",
+      "ip": "192.168.0.31",
+      "name": "Device-7",
+      "upKBps": "0",
+      "downKBps": "0",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:0a",
+      "ip": "192.168.0.30",
+      "name": "Device-9",
+      "upKBps": "0",
+      "downKBps": "0",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:0d",
+      "ip": "192.168.0.10",
+      "name": "Device-14",
+      "upKBps": "0",
+      "downKBps": "0",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:0e",
+      "ip": "192.168.0.5",
+      "name": "Device-15",
+      "upKBps": "0",
+      "downKBps": "0",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    },
+    {
+      "mac": "02:00:00:00:00:09",
+      "ip": "192.168.0.32",
+      "name": "Device-8",
+      "upKBps": "0",
+      "downKBps": "0",
+      "linkType": "unknown",
+      "line": "wired",
+      "guest": false,
+      "blocked": false
+    }
+  ]
+}

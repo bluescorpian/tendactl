@@ -1,8 +1,13 @@
 package tenda
 
 import (
+	"context"
+	"errors"
+	"net/http"
 	"net/url"
 	"testing"
+
+	"github.com/bluescorpian/tendactl/tenda/tendatest"
 )
 
 func TestClassify(t *testing.T) {
@@ -87,5 +92,85 @@ func TestNormalizeEndpoint(t *testing.T) {
 		if _, _, _, err := normalizeEndpoint(bad); err == nil {
 			t.Fatalf("%q: want error", bad)
 		}
+	}
+}
+
+// TestHazardGate sends every unconditional hazard through Raw: refused
+// without confirmation (no request at all, not even a login), and sent
+// exactly once when confirmed.
+func TestHazardGate(t *testing.T) {
+	for _, h := range hazards {
+		if h.when != nil {
+			continue
+		}
+		t.Run(h.endpoint, func(t *testing.T) {
+			ctx := context.Background()
+			r := tendatest.New(t)
+			method := http.MethodPost
+			if h.endpoint == "SysToolReboot" {
+				method = http.MethodGet // a plain GET reboots too
+			}
+			_, err := newTestClient(t, r).Raw(ctx, method, h.endpoint, nil, url.Values{"action": {"0"}})
+			var he *HazardError
+			if !errors.As(err, &he) || !errors.Is(err, ErrNotConfirmed) {
+				t.Fatalf("err = %v, want *HazardError", err)
+			}
+			if len(r.Calls()) != 0 || r.Logins() != 0 {
+				t.Fatalf("calls = %d, logins = %d; want none", len(r.Calls()), r.Logins())
+			}
+
+			r.Allow(h.endpoint)
+			if _, err := newTestClient(t, r, WithConfirm(allowAll)).Raw(ctx, method, h.endpoint, nil, url.Values{"action": {"0"}}); err != nil {
+				t.Fatal(err)
+			}
+			if n := len(r.Calls()); n != 1 {
+				t.Fatalf("calls = %d, want 1", n)
+			}
+		})
+	}
+}
+
+func TestHazardConfirmError(t *testing.T) {
+	r := tendatest.New(t)
+	no := errors.New("no")
+	c := newTestClient(t, r, WithConfirm(func(context.Context, Hazard) error { return no }))
+	_, err := c.Raw(context.Background(), http.MethodGet, "cloudv2?module=olupgrade&opt=queryupgrade", nil, nil)
+	var he *HazardError
+	if !errors.As(err, &he) || !errors.Is(err, no) || he.Hazard.Endpoint != "cloudv2" {
+		t.Fatalf("err = %v", err)
+	}
+	if len(r.Calls()) != 0 {
+		t.Fatal("request sent")
+	}
+}
+
+// TestHazardNotReplayedAfterDoctype: a DOCTYPE body does not prove the
+// handler did not run, so a hazardous JSON request is never sent twice.
+// (Native forms such as SysToolReboot answer HTML on success, so the DOCTYPE
+// heuristic never applies to them.)
+func TestHazardNotReplayedAfterDoctype(t *testing.T) {
+	ctx := context.Background()
+	r := tendatest.New(t)
+	r.Allow("AdvSetLanip")
+	c := newTestClient(t, r, WithConfirm(allowAll))
+	if _, err := c.RouterStatus(ctx); err != nil {
+		t.Fatal(err)
+	}
+	form := url.Values{"lanIp": {"192.168.0.1"}}
+	r.ExpireDoctype()
+	if err := c.set(ctx, "AdvSetLanip", form); !errors.Is(err, ErrSessionLost) {
+		t.Fatalf("err = %v, want ErrSessionLost", err)
+	}
+	if r.Expired() != 1 || r.Logins() != 1 {
+		t.Fatalf("expired = %d, logins = %d; want 1, 1", r.Expired(), r.Logins())
+	}
+
+	// A 302 proves the handler did not run, so that one is replayed.
+	r.Expire()
+	if err := c.set(ctx, "AdvSetLanip", form); err != nil {
+		t.Fatal(err)
+	}
+	if n := len(r.CallsTo("AdvSetLanip")); n != 1 {
+		t.Fatalf("AdvSetLanip calls = %d, want 1", n)
 	}
 }

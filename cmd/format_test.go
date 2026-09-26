@@ -3,31 +3,21 @@ package cmd
 import (
 	"bytes"
 	"context"
-	"net/http"
-	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/bluescorpian/tendactl/tenda"
+	"github.com/bluescorpian/tendactl/tenda/tendatest"
 )
 
-// fixtureClient serves tenda/testdata/<Name>.json behind a stub login.
+// fixtureClient returns a client for a fake router serving tenda/testdata.
 func fixtureClient(t *testing.T) *tenda.Client {
 	t.Helper()
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch {
-		case r.URL.Path == "/login/Auth":
-			http.SetCookie(w, &http.Cookie{Name: "password", Value: "tok", Path: "/"})
-			http.Redirect(w, r, "/main.html", http.StatusFound)
-		case strings.HasPrefix(r.URL.Path, "/goform/"):
-			http.ServeFile(w, r, filepath.Join("..", "tenda", "testdata", strings.TrimPrefix(r.URL.Path, "/goform/")+".json"))
-		}
-	}))
-	t.Cleanup(srv.Close)
-	c, err := tenda.New(srv.URL, tenda.WithSessionFile(""), tenda.WithStrictDecode(),
-		tenda.WithPassword(func(context.Context) (string, error) { return "pw", nil }))
+	r := tendatest.New(t)
+	c, err := tenda.New(r.Host(), tenda.WithSessionFile(""), tenda.WithStrictDecode(), tenda.WithHTTPClient(r.HTTPClient()),
+		tenda.WithPassword(func(context.Context) (string, error) { return tendatest.Password, nil }))
 	if err != nil {
 		t.Fatal(err)
 	}

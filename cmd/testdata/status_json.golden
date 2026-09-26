@@ -1,0 +1,28 @@
+{
+  "deviceName": "AC10",
+  "workMode": "router",
+  "lanIp": "192.168.0.1",
+  "lanMac": "02:00:00:00:00:0F",
+  "clientCount": 13,
+  "wifi24": {
+    "enabled": true,
+    "ssid": "WiFi-16"
+  },
+  "wifi5": {
+    "enabled": false,
+    "ssid": ""
+  },
+  "wan": [
+    {
+      "status": "1310209",
+      "ip": "203.0.113.10",
+      "upKBps": "7.23",
+      "downKBps": "521.28"
+    }
+  ],
+  "firmware": {
+    "current": "V15.03.06.50_multi",
+    "latest": "",
+    "updateAvailable": false
+  }
+}
