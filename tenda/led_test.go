@@ -19,7 +19,7 @@ func TestLED(t *testing.T) {
 	}
 }
 
-func TestSetLED(t *testing.T) {
+func TestLEDSet(t *testing.T) {
 	r := tendatest.New(t)
 	c := newTestClient(t, r)
 	if err := c.SetLED(context.Background(), LED{Mode: "open", Time: "00:00-07:00", CloseType: "allClose"}); err != nil {
