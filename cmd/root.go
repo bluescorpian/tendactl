@@ -66,6 +66,7 @@ reuse it without a password until the router expires it.
 
 Requests that can cut connectivity or destroy configuration (reboot, LAN
 changes, turning WiFi off, ...) are refused unless --yes is given.`,
+		Version:       buildVersion(),
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
